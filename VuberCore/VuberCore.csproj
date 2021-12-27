@@ -9,7 +9,11 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.13" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.13" />
       <PackageReference Include="NetTopologySuite" Version="2.4.0" />
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.10" />
+      <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
     </ItemGroup>
 
 </Project>
