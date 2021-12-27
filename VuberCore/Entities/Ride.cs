@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using NetTopologySuite.Geometries;
+using Geolocation;
 
 namespace VuberCore.Entities
 {
@@ -17,9 +17,9 @@ namespace VuberCore.Entities
         [Required]
         public RideStatus Status { get; set; }
         [Required]
-        public Point StartLocation { get; set; }
+        public Coordinate StartLocation { get; set; }
         [Required]
-        public ICollection<Point> TargetLocations { get; set; }
+        public ICollection<Coordinate> TargetLocations { get; set; }
         [Required]
         public DateTime Created { get; set; }
         public DateTime Found { get; set; }

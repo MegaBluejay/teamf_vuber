@@ -1,6 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using NetTopologySuite.Geometries;
+using Geolocation;
 
 namespace VuberCore.Entities
 {
@@ -10,7 +10,7 @@ namespace VuberCore.Entities
         public RideLevel MaxRideLevel { get; set; }
         [Required]
         public RideLevel MinRideLevel { get; set; }
-        public Point LastKnownLocation { get; set; }
+        public Coordinate LastKnownLocation { get; set; }
         public DateTime LocationUpdatedAt { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using Geolocation;
 using VuberCore.Entities;
 using VuberServer.Clients;
 using VuberServer.Controllers;
@@ -31,7 +32,7 @@ namespace VuberServer.Hubs
         {
         }
 
-        public void SendCurrentLocation(Location currentLocation)
+        public void SendCurrentLocation(Coordinate currentLocation)
         {
         }
     }
