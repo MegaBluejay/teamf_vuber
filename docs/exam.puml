@@ -1,0 +1,77 @@
+@startuml
+
+package Models {
+        class Location
+
+        abstract class User {
+                string Username
+
+        }
+        class Client
+        class Driver {
+                Location CurrentLocation
+        }
+
+        enum RideStatus {
+                Looking
+                Waiting
+                InProgress
+                Complete
+                Cancelled
+        }
+        class Ride {
+                Client Client
+                Driver Driver
+                Location StartLocation
+                List<Location> TargetLocations
+                decimal Cost
+                RideStatus RideStatus
+        }
+
+        Client --|> User
+        Driver --|> User
+
+        Driver o-- Location
+
+        Ride o-- Client
+        Ride o-- Driver
+        Ride o-- Location
+        Ride *-- RideStatus
+}
+
+class Repos
+Repos --> Client
+Repos --> Driver
+Repos --> Ride
+
+
+package Server {
+        interface IVuberController
+        interface IHubContext
+        class VuberController
+        VuberController --|> IVuberController
+        VuberController --> Repos
+        VuberController --> IHubContext
+
+        abstract class VuberHub
+        class ClientHub
+        class DriverHub
+        ClientHub --|> VuberHub
+        DriverHub --|> VuberHub
+        ClientHub --> VuberController
+        DriverHub --> VuberController
+
+        class UserIdProvider
+        UserIdProvider --> VuberController
+        VuberHub --> UserIdProvider
+
+        interface IVuberClient
+        interface IClientClient
+        interface IDriverClient
+        IClientClient --|> IVuberClient
+        IDriverClient --|> IVuberClient
+        ClientHub --> IClientClient
+        DriverHub --> IDriverClient
+}
+
+@enduml
