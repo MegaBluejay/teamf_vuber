@@ -1,7 +1,10 @@
-﻿namespace VuberCore.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace VuberCore.Entities
 {
     public class PaymentCard
     {
-        public string CardData;
+        [Required]
+        public string CardData { get; set; }
     }
 }
