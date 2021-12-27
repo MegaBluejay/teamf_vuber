@@ -19,6 +19,11 @@ package Models {
                 Complete
                 Cancelled
         }
+        enum RideType {
+                Economy,
+                Business,
+                Ultra,
+        }
         class Ride {
                 Client Client
                 Driver Driver
@@ -26,6 +31,9 @@ package Models {
                 List<Location> TargetLocations
                 decimal Cost
                 RideStatus RideStatus
+                RideType RideType
+                int ClientScore
+                int DriverScore
         }
 
         Client --|> User
@@ -37,6 +45,7 @@ package Models {
         Ride o-- Driver
         Ride o-- Location
         Ride *-- RideStatus
+        Ride *-- RideType
 }
 
 class Repos
@@ -58,8 +67,8 @@ package Server {
         class DriverHub
         ClientHub --|> VuberHub
         DriverHub --|> VuberHub
-        ClientHub --> VuberController
-        DriverHub --> VuberController
+        ClientHub --> IVuberController
+        DriverHub --> IVuberController
 
         class UserIdProvider
         UserIdProvider --> VuberController
