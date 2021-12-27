@@ -1,4 +1,5 @@
 using System;
+using NetTopologySuite.Geometries;
 using VuberCore.Entities;
 using VuberServer.Clients;
 using VuberServer.Controllers;
@@ -10,7 +11,7 @@ namespace VuberServer.Hubs
         public ClientHub(IVuberController vuberController)
             : base(vuberController) { }
 
-        public void OrderRide(Location startLocation, Location targetLocation, RideType rideType)
+        public void OrderRide(Point startLocation, Point targetLocation, RideType rideType)
         {
         }
 
