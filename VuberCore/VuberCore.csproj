@@ -5,10 +5,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Entities" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="NetTopologySuite" Version="2.4.0" />
     </ItemGroup>
 

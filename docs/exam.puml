@@ -5,13 +5,23 @@ package Models {
 
         abstract class User {
                 string Username
-
+                int Score
         }
-        class Client
+        class Client {
+                PaymentCard PaymentCard
+                List<Ride> Rides
+        }
         class Driver {
                 Location CurrentLocation
         }
-
+        class PaymentCard {
+            string CardData
+        }
+        
+        enum PaymentType{
+                Cash
+                PaymentCard
+        }
         enum RideStatus {
                 Looking
                 Waiting
@@ -46,6 +56,8 @@ package Models {
         Ride o-- Location
         Ride *-- RideStatus
         Ride *-- RideType
+        Ride *-- PaymentType
+        Client *-- PaymentCard
 }
 
 class Repos
@@ -63,7 +75,12 @@ package Server {
         VuberController --> IHubContext
 
         abstract class VuberHub
-        class ClientHub
+        class ClientHub{
+                OrderRide(Location startLocation, Location targetLocation, RideType rideType)
+                AddPaymentCard(string CardData)
+                SeeRides()
+                ScoreDriver()
+        }
         class DriverHub
         ClientHub --|> VuberHub
         DriverHub --|> VuberHub
