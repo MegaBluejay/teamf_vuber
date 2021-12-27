@@ -50,4 +50,8 @@
       <_ContentIncludedByDefault Remove="wwwroot\lib\jquery\LICENSE.txt" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\VuberCore\VuberCore.csproj" />
+    </ItemGroup>
+
 </Project>
