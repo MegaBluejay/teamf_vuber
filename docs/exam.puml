@@ -74,14 +74,20 @@ package Server {
         VuberController --> Repos
         VuberController --> IHubContext
 
-        abstract class VuberHub
+        abstract class VuberHub{
+                SeeRides()
+                SetRating(Rating rating, Guid rideId)
+        }
         class ClientHub{
                 OrderRide(Location startLocation, Location targetLocation, RideType rideType)
                 AddPaymentCard(string CardData)
-                SeeRides()
-                ScoreDriver()
         }
-        class DriverHub
+        class DriverHub{
+                AcceptOrder()
+                RejectOrder()
+                NotifyClientAboutArrival()
+                SendCurrentLocation(Location currentLocation)
+        }
         ClientHub --|> VuberHub
         DriverHub --|> VuberHub
         ClientHub --> IVuberController
