@@ -16,17 +16,20 @@ namespace VuberServer.Controllers
         private readonly IHubContext<DriverHub> _driverHubContext;
         private readonly VuberDbContext _vuberDbContext;
         private readonly ICalculateNewRatingStrategy _calculateNewRatingStrategy;
+        private readonly IFindRidesWithLookingStatusStrategy _findRidesWithLookingStatusStrategy;
 
         public VuberController(
             IHubContext<ClientHub> clientHubContext,
             IHubContext<DriverHub> driverHubContext,
             VuberDbContext vuberDbContext,
-            ICalculateNewRatingStrategy calculateNewRatingStrategy)
+            ICalculateNewRatingStrategy calculateNewRatingStrategy,
+            IFindRidesWithLookingStatusStrategy findRidesWithLookingStatusStrategy)
         {
             _clientHubContext = clientHubContext ?? throw new ArgumentNullException(nameof(clientHubContext));
             _driverHubContext = driverHubContext ?? throw new ArgumentNullException(nameof(driverHubContext));
             _vuberDbContext = vuberDbContext;
             _calculateNewRatingStrategy = calculateNewRatingStrategy;
+            _findRidesWithLookingStatusStrategy = findRidesWithLookingStatusStrategy;
         }
 
         public List<Ride> SeeRides(User activeUser)
@@ -39,6 +42,11 @@ namespace VuberServer.Controllers
             User user = _vuberDbContext.Users.FirstOrDefault(user => user.Id == userId);
             _calculateNewRatingStrategy.CalculateNewRating(user.Rating, rating);
             _vuberDbContext.SaveChanges();
+        }
+
+        public List<Ride> FindRidesWithLookingStatus()
+        {
+            return _findRidesWithLookingStatusStrategy.FindRidesWithLookingStatus(_vuberDbContext);
         }
     }
 }
