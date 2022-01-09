@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace VuberCore.Entities
@@ -8,6 +9,7 @@ namespace VuberCore.Entities
         public string Username { get; set; }
         public string Name { get; set; }
         public Rating Rating { get; set; }
-        
+
+        public List<Ride> Rides { get; set; }
     }
 }

@@ -139,7 +139,13 @@ namespace VuberServer.Controllers
 
         public List<Ride> SeeRides(User activeUser)
         {
-            return _vuberDbContext.Clients.FirstOrDefault(user => user.Id == activeUser.Id).Rides;
+            var rides = _vuberDbContext.Clients.FirstOrDefault(userToFind => userToFind.Id == activeUser.Id).Rides;
+            if (rides == null)
+            {
+                rides = _vuberDbContext.Drivers.FirstOrDefault(userToFind => userToFind.Id == activeUser.Id).Rides;
+            }
+
+            return rides;
         }
         
         public void SetRating(Rating rating, Guid userId)
