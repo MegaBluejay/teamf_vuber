@@ -113,7 +113,12 @@ namespace VuberServer.Controllers
         
         public void SetRating(Rating rating, Guid userId)
         {
-            User user = _vuberDbContext.Users.FirstOrDefault(user => user.Id == userId);
+            User user = _vuberDbContext.Clients.FirstOrDefault(user => user.Id == userId);
+            if (user == null)
+            {
+                user = _vuberDbContext.Drivers.FirstOrDefault(user => user.Id == userId);
+            }
+
             _calculateNewRatingStrategy.CalculateNewRating(user.Rating, rating);
             _vuberDbContext.SaveChanges();
         }
