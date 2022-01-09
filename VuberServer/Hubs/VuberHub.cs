@@ -11,7 +11,7 @@ namespace VuberServer.Hubs
     {
         protected readonly IVuberController _vuberController;
 
-        public VuberHub(IVuberController vuberController)
+        protected VuberHub(IVuberController vuberController)
         {
             _vuberController = vuberController ?? throw new ArgumentNullException(nameof(vuberController));
         }
