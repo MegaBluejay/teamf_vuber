@@ -2,8 +2,8 @@
 {
     public enum RideType
     {
-        Economy,
-        Business,
-        Ultra,
+        Economy = 10,
+        Comfort = 20,
+        Business = 30,
     }
 }
