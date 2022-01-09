@@ -10,6 +10,8 @@ namespace VuberCore.Dto
         public ICollection<Coordinate> TargetLocations { get; set; }
         public RideLevel RideLevel { get; set; }
         public RideStatus Status { get; set; }
-        public Rating ClientRating { get; set; }
+        public DriverToThemselves Me { get; set; }
+        public ClientToDriver Client { get; set; }
+        public decimal Payment { get; set; }
     }
 }
