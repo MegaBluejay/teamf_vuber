@@ -8,7 +8,6 @@ using VuberServer.Hubs;
 using VuberCore.Data;
 using VuberServer.Strategies.CalculateNewRatingStrategies;
 using VuberServer.Strategies.FindRidesWithLookingStatusStrategies;
-using VuberCore.Dto;
 
 namespace VuberServer.Controllers
 {
@@ -65,10 +64,22 @@ namespace VuberServer.Controllers
             var rideToTake = _vuberDbContext.Rides.FirstOrDefault(ride => ride.Id == rideId) ?? 
                              throw new ArgumentNullException();
             rideToTake.Driver = driverToTakeRide;
+            rideToTake.Status = RideStatus.Waiting;
             _vuberDbContext.Rides.Update(rideToTake);
         }
 
-        private decimal CalculatePrice(RideType rideType, Coordinate startLocation, ICollection<Coordinate> targetLocations)
+        public void DriverArrives(Guid rideId)
+        {
+            var driverToTakeRide = _vuberDbContext.Drivers.FirstOrDefault(driver => driver.Id == driverId) ?? 
+                                   throw new ArgumentNullException();
+            var rideToTake = _vuberDbContext.Rides.FirstOrDefault(ride => ride.Id == rideId) ?? 
+                             throw new ArgumentNullException();
+            rideToTake.Driver = driverToTakeRide;
+            rideToTake.Status = RideStatus.Waiting;
+            _vuberDbContext.Rides.Update(rideToTake);
+        }
+
+        private decimal CalculateRideLength(Coordinate startLocation, ICollection<Coordinate> targetLocations)
         {
             double length = Math.Sqrt(Math.Pow(startLocation.Latitude - targetLocations.First().Latitude, 2)
                                       + Math.Pow(startLocation.Longitude - targetLocations.First().Longitude, 2));
@@ -84,7 +95,12 @@ namespace VuberServer.Controllers
                 }
             }
 
-            var price = Convert.ToDecimal(length);
+            return Convert.ToDecimal(length);
+        }
+
+        private decimal CalculatePrice(RideType rideType, Coordinate startLocation, ICollection<Coordinate> targetLocations)
+        {
+            var price = CalculateRideLength(startLocation, targetLocations);
             switch (rideType)
             {
                 case RideType.Economy:
