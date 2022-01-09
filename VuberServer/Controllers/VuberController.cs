@@ -21,11 +21,12 @@ namespace VuberServer.Controllers
         private const decimal LoadedLevelExtraCharge = 100;
         private WorkloadLevel WorkloadLevel;
 
-        public void SetRating(Rating rating, Guid userId)
+        public VuberController(IHubContext<ClientHub> clientHubContext, IHubContext<DriverHub> driverHubContext, VuberDbContext vuberDbContext)
         {
-            User userToSetRating = _vuberDbContext.Users.FirstOrDefault(user => user.Id == userId) ?? throw new ArgumentNullException();
-            userToSetRating.Rating = rating;
-            _vuberDbContext.SaveChanges();
+            _clientHubContext = clientHubContext ?? throw new ArgumentNullException(nameof(clientHubContext));
+            _driverHubContext = driverHubContext ?? throw new ArgumentNullException(nameof(driverHubContext));
+            _vuberDbContext = vuberDbContext;
+            WorkloadLevel = WorkloadLevel.Normal;
         }
 
         public Ride CreateNewRide(Guid clientId, Coordinate startLocation, ICollection<Coordinate> targetLocations, RideType rideType)
@@ -88,18 +89,17 @@ namespace VuberServer.Controllers
 
             return price;
         }
-        public VuberController(IHubContext<ClientHub> clientHubContext, IHubContext<DriverHub> driverHubContext, VuberDbContext vuberDbContext)
-        {
-            _clientHubContext = clientHubContext ?? throw new ArgumentNullException(nameof(clientHubContext));
-            _driverHubContext = driverHubContext ?? throw new ArgumentNullException(nameof(driverHubContext));
-            _vuberDbContext = vuberDbContext;
-            WorkloadLevel = WorkloadLevel.Normal;
-        }
 
-        
         public List<Ride> SeeRides(User activeUser)
         {
             return _vuberDbContext.Clients.FirstOrDefault(user => user.Id == activeUser.Id).Rides;
+        }
+        
+        public void SetRating(Rating rating, Guid userId)
+        {
+            User userToSetRating = _vuberDbContext.Users.FirstOrDefault(user => user.Id == userId) ?? throw new ArgumentNullException();
+            userToSetRating.Rating = rating;
+            _vuberDbContext.SaveChanges();
         }
     }
 }
