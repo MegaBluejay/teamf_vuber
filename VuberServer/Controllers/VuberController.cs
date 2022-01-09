@@ -36,6 +36,8 @@ namespace VuberServer.Controllers
             _driverHubContext = driverHubContext ?? throw new ArgumentNullException(nameof(driverHubContext));
             _vuberDbContext = vuberDbContext;
             WorkloadLevel = WorkloadLevel.Normal;
+            _calculateNewRatingStrategy = calculateNewRatingStrategy;
+            _findRidesWithLookingStatusStrategy = findRidesWithLookingStatusStrategy;
         }
 
         public Ride CreateNewRide(Guid clientId, Coordinate startLocation, ICollection<Coordinate> targetLocations, RideType rideType)
@@ -64,8 +66,6 @@ namespace VuberServer.Controllers
                              throw new ArgumentNullException();
             rideToTake.Driver = driverToTakeRide;
             _vuberDbContext.Rides.Update(rideToTake);
-            _calculateNewRatingStrategy = calculateNewRatingStrategy;
-            _findRidesWithLookingStatusStrategy = findRidesWithLookingStatusStrategy;
         }
 
         private decimal CalculatePrice(RideType rideType, Coordinate startLocation, ICollection<Coordinate> targetLocations)
