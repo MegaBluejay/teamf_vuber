@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Geolocation;
 using VuberCore.Entities;
 using VuberServer.Clients;
@@ -11,7 +12,7 @@ namespace VuberServer.Hubs
         public ClientHub(IVuberController vuberController)
             : base(vuberController) { }
 
-        public void OrderRide(Coordinate startLocation, Coordinate targetLocation, RideType rideType)
+        public void OrderRide(Coordinate startLocation, ICollection<Coordinate> targetLocations, RideType rideType)
         {
         }
 

@@ -7,9 +7,9 @@ namespace VuberCore.Entities
     public class Driver : User
     {
         [Required]
-        public RideLevel MaxRideLevel { get; set; }
+        public RideType MaxRideLevel { get; set; }
         [Required]
-        public RideLevel MinRideLevel { get; set; }
+        public RideType MinRideLevel { get; set; }
         public Coordinate LastKnownLocation { get; set; }
         public DateTime LocationUpdatedAt { get; set; }
     }

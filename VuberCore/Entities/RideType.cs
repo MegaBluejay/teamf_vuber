@@ -3,7 +3,7 @@
     public enum RideType
     {
         Economy,
+        Comfort,
         Business,
-        Ultra,
     }
 }

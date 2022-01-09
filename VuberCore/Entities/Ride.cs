@@ -13,7 +13,7 @@ namespace VuberCore.Entities
         [Required]
         public decimal Cost { get; set; }
         [Required]
-        public RideLevel RideLevel { get; set; }
+        public RideType RideType { get; set; }
         [Required]
         public RideStatus Status { get; set; }
         [Required]
