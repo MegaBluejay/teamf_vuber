@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 using VuberCore.Entities;
 using VuberServer.Hubs;
 using VuberCore.Data;
+using VuberCore.Dto;
 
 namespace VuberServer.Controllers
 {
@@ -19,19 +20,6 @@ namespace VuberServer.Controllers
         private const decimal BusinessRideTypePriceMultiplier = 200;
         private const decimal LoadedLevelExtraCharge = 100;
         private WorkloadLevel WorkloadLevel;
-        
-        public VuberController(IHubContext<ClientHub> clientHubContext, IHubContext<DriverHub> driverHubContext, VuberDbContext vuberDbContext)
-        {
-            _clientHubContext = clientHubContext ?? throw new ArgumentNullException(nameof(clientHubContext));
-            _driverHubContext = driverHubContext ?? throw new ArgumentNullException(nameof(driverHubContext));
-            _vuberDbContext = vuberDbContext;
-            WorkloadLevel = WorkloadLevel.Normal;
-        }
-
-        public List<Ride> SeeRides(User activeUser)
-        {
-            return _vuberDbContext.Clients.FirstOrDefault(user => user.Id == activeUser.Id).Rides;
-        }
 
         public void SetRating(Rating rating, Guid userId)
         {
@@ -40,11 +28,13 @@ namespace VuberServer.Controllers
             _vuberDbContext.SaveChanges();
         }
 
-        public Ride CreateNewRide(Client client, Coordinate startLocation, ICollection<Coordinate> targetLocations, RideType rideType)
+        public Ride CreateNewRide(Guid clientId, Coordinate startLocation, ICollection<Coordinate> targetLocations, RideType rideType)
         {
-            return new Ride()
+            var clientForRide = _vuberDbContext.Clients.FirstOrDefault(client => client.Id == clientId) ??
+                                throw new ArgumentNullException();
+            var ride = new Ride()
             {
-                Client = client, 
+                Client = clientForRide, 
                 Cost = CalculatePrice(rideType, startLocation, targetLocations), 
                 RideType = rideType, 
                 Status = RideStatus.Looking, 
@@ -52,6 +42,18 @@ namespace VuberServer.Controllers
                 TargetLocations = targetLocations, 
                 Created = DateTime.UtcNow,
             };
+            _vuberDbContext.Rides.Add(ride);
+            return ride;
+        }
+
+        public void DriverTakesRide(Guid driverId, Guid rideId)
+        {
+            var driverToTakeRide = _vuberDbContext.Drivers.FirstOrDefault(driver => driver.Id == driverId) ?? 
+                                   throw new ArgumentNullException();
+            var rideToTake = _vuberDbContext.Rides.FirstOrDefault(ride => ride.Id == rideId) ?? 
+                             throw new ArgumentNullException();
+            rideToTake.Driver = driverToTakeRide;
+            _vuberDbContext.Rides.Update(rideToTake);
         }
 
         private decimal CalculatePrice(RideType rideType, Coordinate startLocation, ICollection<Coordinate> targetLocations)
@@ -85,6 +87,19 @@ namespace VuberServer.Controllers
             }
 
             return price;
+        }
+        public VuberController(IHubContext<ClientHub> clientHubContext, IHubContext<DriverHub> driverHubContext, VuberDbContext vuberDbContext)
+        {
+            _clientHubContext = clientHubContext ?? throw new ArgumentNullException(nameof(clientHubContext));
+            _driverHubContext = driverHubContext ?? throw new ArgumentNullException(nameof(driverHubContext));
+            _vuberDbContext = vuberDbContext;
+            WorkloadLevel = WorkloadLevel.Normal;
+        }
+
+        
+        public List<Ride> SeeRides(User activeUser)
+        {
+            return _vuberDbContext.Clients.FirstOrDefault(user => user.Id == activeUser.Id).Rides;
         }
     }
 }

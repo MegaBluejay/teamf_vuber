@@ -8,10 +8,12 @@ namespace VuberServer.Controllers
     public interface IVuberController
     {
         Ride CreateNewRide(
-            Client client, 
+            Guid clientId, 
             Coordinate startLocation, 
             ICollection<Coordinate> targetLocations,
             RideType rideType);
+
+        void DriverTakesRide(Guid driverId, Guid rideId);
         
         List<Ride> SeeRides(User activeUser);
         
