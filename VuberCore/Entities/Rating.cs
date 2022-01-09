@@ -6,5 +6,7 @@ namespace VuberCore.Entities
     {
         [Required]
         public double Value { get; set; } 
+
+        public uint RidesNumber { get; set; }
     }
 }
