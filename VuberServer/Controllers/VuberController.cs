@@ -65,6 +65,7 @@ namespace VuberServer.Controllers
                              throw new ArgumentNullException();
             rideToTake.Driver = driverToTakeRide;
             rideToTake.Status = RideStatus.Waiting;
+            rideToTake.Found = DateTime.UtcNow;
             _vuberDbContext.Rides.Update(rideToTake);
         }
 
@@ -73,6 +74,7 @@ namespace VuberServer.Controllers
             var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind => rideToFind.Id == rideId) ?? 
                              throw new ArgumentNullException();
             ride.Status = RideStatus.InProgress;
+            ride.Started = DateTime.UtcNow;
             _vuberDbContext.Rides.Update(ride);
         }
 
@@ -81,6 +83,7 @@ namespace VuberServer.Controllers
             var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind => rideToFind.Id == rideId) ?? 
                        throw new ArgumentNullException();
             ride.Status = RideStatus.Complete;
+            ride.Finished = DateTime.UtcNow;
             _vuberDbContext.Rides.Update(ride);
         }
 
@@ -103,6 +106,7 @@ namespace VuberServer.Controllers
                 default:
                     throw new Exception("Ride cannot be cancelled");
             }
+            ride.Finished = DateTime.UtcNow;
             _vuberDbContext.Rides.Update(ride);
         }
 
