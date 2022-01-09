@@ -15,6 +15,12 @@ namespace VuberServer.Controllers
 
         void DriverTakesRide(Guid driverId, Guid rideId);
         
+        void DriverArrives(Guid rideId);
+
+        void RideCompleted(Guid rideId);
+
+        void CancelRide(Guid rideId);
+        
         List<Ride> SeeRides(User activeUser);
         
         void SetRating(Rating rating, Guid userId);

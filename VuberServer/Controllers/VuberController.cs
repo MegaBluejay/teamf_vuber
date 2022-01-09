@@ -66,18 +66,49 @@ namespace VuberServer.Controllers
                              throw new ArgumentNullException();
             rideToTake.Driver = driverToTakeRide;
             rideToTake.Status = RideStatus.Waiting;
+            rideToTake.Found = DateTime.UtcNow;
             _vuberDbContext.Rides.Update(rideToTake);
         }
 
         public void DriverArrives(Guid rideId)
         {
-            var driverToTakeRide = _vuberDbContext.Drivers.FirstOrDefault(driver => driver.Id == driverId) ?? 
-                                   throw new ArgumentNullException();
-            var rideToTake = _vuberDbContext.Rides.FirstOrDefault(ride => ride.Id == rideId) ?? 
+            var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind => rideToFind.Id == rideId) ?? 
                              throw new ArgumentNullException();
-            rideToTake.Driver = driverToTakeRide;
-            rideToTake.Status = RideStatus.Waiting;
-            _vuberDbContext.Rides.Update(rideToTake);
+            ride.Status = RideStatus.InProgress;
+            ride.Started = DateTime.UtcNow;
+            _vuberDbContext.Rides.Update(ride);
+        }
+
+        public void RideCompleted(Guid rideId)
+        {
+            var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind => rideToFind.Id == rideId) ?? 
+                       throw new ArgumentNullException();
+            ride.Status = RideStatus.Complete;
+            ride.Finished = DateTime.UtcNow;
+            _vuberDbContext.Rides.Update(ride);
+        }
+
+        public void CancelRide(Guid rideId)
+        {
+            var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind => rideToFind.Id == rideId) ?? 
+                             throw new ArgumentNullException();
+            switch (ride.Status)
+            {
+                case RideStatus.Looking:
+                    ride.Status = RideStatus.Cancelled;
+                    break;
+                case RideStatus.Waiting:
+                    ride.Status = RideStatus.Cancelled;
+                    break;
+                case RideStatus.InProgress:
+                    ride.Status = RideStatus.Cancelled;
+                    //снятие денег с клиента за часть поездки
+                    break;
+                default:
+                    throw new Exception("Ride cannot be cancelled");
+            }
+            ride.Finished = DateTime.UtcNow;
+            _vuberDbContext.Rides.Update(ride);
         }
 
         private decimal CalculateRideLength(Coordinate startLocation, ICollection<Coordinate> targetLocations)
