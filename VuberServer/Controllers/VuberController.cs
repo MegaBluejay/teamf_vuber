@@ -139,23 +139,18 @@ namespace VuberServer.Controllers
 
         public List<Ride> SeeRides(User activeUser)
         {
-            var rides = _vuberDbContext.Clients.FirstOrDefault(userToFind => userToFind.Id == activeUser.Id).Rides;
-            if (rides == null)
-            {
-                rides = _vuberDbContext.Drivers.FirstOrDefault(userToFind => userToFind.Id == activeUser.Id).Rides;
-            }
+            var rides = _vuberDbContext.Clients.FirstOrDefault(userToFind => userToFind.Id == activeUser.Id).Rides ?? 
+                        (_vuberDbContext.Drivers.FirstOrDefault(userToFind => userToFind.Id == activeUser.Id).Rides  ?? 
+                         throw new ArgumentNullException());
 
             return rides;
         }
         
         public void SetRating(Rating rating, Guid userId)
         {
-            User user = _vuberDbContext.Clients.FirstOrDefault(userToFind => userToFind.Id == userId);
-            if (user == null)
-            {
-                user = _vuberDbContext.Drivers.FirstOrDefault(userToFind => userToFind.Id == userId)  ?? 
-                       throw new ArgumentNullException();
-            }
+            User user = _vuberDbContext.Clients.FirstOrDefault(userToFind => userToFind.Id == userId) ?? 
+                        (User) (_vuberDbContext.Drivers.FirstOrDefault(userToFind => userToFind.Id == userId)  ?? 
+                                throw new ArgumentNullException());
 
             _calculateNewRatingStrategy.CalculateNewRating(user.Rating, rating);
             _vuberDbContext.SaveChanges();
