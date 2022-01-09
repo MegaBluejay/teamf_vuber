@@ -7,6 +7,7 @@ using VuberCore.Entities;
 using VuberServer.Hubs;
 using VuberCore.Data;
 using VuberServer.Strategies.CalculateNewRatingStrategies;
+using VuberServer.Strategies.CalculatePriceStrategies;
 using VuberServer.Strategies.FindRidesWithLookingStatusStrategies;
 
 namespace VuberServer.Controllers
@@ -16,19 +17,18 @@ namespace VuberServer.Controllers
         private readonly IHubContext<ClientHub> _clientHubContext;
         private readonly IHubContext<DriverHub> _driverHubContext;
         private readonly VuberDbContext _vuberDbContext;
-        private const decimal EconomyRideTypePriceMultiplier = 50;
-        private const decimal ComfortRideTypePriceMultiplier = 100;
-        private const decimal BusinessRideTypePriceMultiplier = 200;
-        private const decimal LoadedLevelExtraCharge = 100;
         private WorkloadLevel WorkloadLevel;
-        private readonly ICalculateNewRatingStrategy _calculateNewRatingStrategy;
-        private readonly IFindRidesWithLookingStatusStrategy _findRidesWithLookingStatusStrategy;
+        private decimal _maxLookingRidesForNormalWorkloadLevel;
+        private ICalculateNewRatingStrategy _calculateNewRatingStrategy;
+        private ICalculatePriceStrategy _calculatePriceStrategy;
+        private IFindRidesWithLookingStatusStrategy _findRidesWithLookingStatusStrategy;
 
         public VuberController(
             IHubContext<ClientHub> clientHubContext,
             IHubContext<DriverHub> driverHubContext,
             VuberDbContext vuberDbContext,
             ICalculateNewRatingStrategy calculateNewRatingStrategy,
+            ICalculatePriceStrategy calculatePriceStrategy,
             IFindRidesWithLookingStatusStrategy findRidesWithLookingStatusStrategy)
         {
             _clientHubContext = clientHubContext ?? throw new ArgumentNullException(nameof(clientHubContext));
@@ -36,6 +36,7 @@ namespace VuberServer.Controllers
             _vuberDbContext = vuberDbContext;
             WorkloadLevel = WorkloadLevel.Normal;
             _calculateNewRatingStrategy = calculateNewRatingStrategy;
+            _calculatePriceStrategy = calculatePriceStrategy;
             _findRidesWithLookingStatusStrategy = findRidesWithLookingStatusStrategy;
         }
 
@@ -100,21 +101,9 @@ namespace VuberServer.Controllers
 
         private decimal CalculatePrice(RideType rideType, Coordinate startLocation, ICollection<Coordinate> targetLocations)
         {
-            var price = CalculateRideLength(startLocation, targetLocations);
-            switch (rideType)
-            {
-                case RideType.Economy:
-                    price = price * EconomyRideTypePriceMultiplier + LoadedLevelExtraCharge;
-                    break;
-                case RideType.Comfort:
-                    price = price * ComfortRideTypePriceMultiplier + LoadedLevelExtraCharge;
-                    break;
-                case RideType.Business:
-                    price = price * BusinessRideTypePriceMultiplier + LoadedLevelExtraCharge;
-                    break;
-            }
-
-            return price;
+            var rideLength = CalculateRideLength(startLocation, targetLocations);
+            CheckWorkloadLevel();
+            return _calculatePriceStrategy.CalculatePrice(rideLength, rideType, WorkloadLevel);
         }
 
         public List<Ride> SeeRides(User activeUser)
@@ -132,6 +121,15 @@ namespace VuberServer.Controllers
         public List<Ride> FindRidesWithLookingStatus()
         {
             return _findRidesWithLookingStatusStrategy.FindRidesWithLookingStatus(_vuberDbContext);
+        }
+
+        private void CheckWorkloadLevel()
+        {
+            WorkloadLevel = WorkloadLevel.Normal;
+            if (_vuberDbContext.Rides.Where(ride => ride.Status == RideStatus.Looking).ToList().Count > _maxLookingRidesForNormalWorkloadLevel)
+            {
+                WorkloadLevel = WorkloadLevel.Loaded;
+            }
         }
     }
 }
