@@ -13,6 +13,8 @@ namespace VuberCore.Entities
         [Required]
         public decimal Cost { get; set; }
         [Required]
+        public PaymentType PaymentType { get; set; }
+        [Required]
         public RideType RideType { get; set; }
         [Required]
         public RideStatus Status { get; set; }

@@ -41,7 +41,12 @@ namespace VuberServer.Controllers
             _findRidesWithLookingStatusStrategy = findRidesWithLookingStatusStrategy;
         }
 
-        public Ride CreateNewRide(Guid clientId, Coordinate startLocation, ICollection<Coordinate> targetLocations, RideType rideType)
+        public Ride CreateNewRide(
+            Guid clientId,
+            Coordinate startLocation,
+            ICollection<Coordinate> targetLocations,
+            PaymentType paymentType,
+            RideType rideType)
         {
             var clientForRide = _vuberDbContext.Clients.FirstOrDefault(client => client.Id == clientId) ??
                                 throw new ArgumentNullException();
@@ -49,6 +54,7 @@ namespace VuberServer.Controllers
             {
                 Client = clientForRide,
                 Cost = CalculatePrice(rideType, startLocation, targetLocations),
+                PaymentType = paymentType,
                 RideType = rideType,
                 Status = RideStatus.Looking,
                 StartLocation = startLocation,
@@ -84,6 +90,7 @@ namespace VuberServer.Controllers
         {
             var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind => rideToFind.Id == rideId) ??
                        throw new ArgumentNullException();
+            WithdrawalForRide(ride);
             ride.Status = RideStatus.Complete;
             ride.Finished = DateTime.UtcNow;
             _vuberDbContext.Rides.Update(ride);
@@ -103,7 +110,7 @@ namespace VuberServer.Controllers
                     break;
                 case RideStatus.InProgress:
                     ride.Status = RideStatus.Cancelled;
-                    //снятие денег с клиента за часть поездки
+                    //снятие денег с клиента за часть поездки??
                     break;
                 default:
                     throw new Exception("Ride cannot be cancelled");
@@ -138,10 +145,10 @@ namespace VuberServer.Controllers
             return _calculatePriceStrategy.CalculatePrice(rideLength, rideType, WorkloadLevel);
         }
 
-        public List<Ride> SeeRides(User activeUser)
+        public List<Ride> SeeRides(Guid userId)
         {
-            var rides = _vuberDbContext.Clients.FirstOrDefault(userToFind => userToFind.Id == activeUser.Id).Rides ??
-                        (_vuberDbContext.Drivers.FirstOrDefault(userToFind => userToFind.Id == activeUser.Id).Rides  ??
+            var rides = _vuberDbContext.Clients.FirstOrDefault(userToFind => userToFind.Id == userId).Rides ??
+                        (_vuberDbContext.Drivers.FirstOrDefault(userToFind => userToFind.Id == userId).Rides  ??
                          throw new ArgumentNullException());
 
             return rides;
@@ -149,15 +156,23 @@ namespace VuberServer.Controllers
 
         public void SetRating(Rating rating, Guid userId)
         {
-            User user = _vuberDbContext.Clients.FirstOrDefault(userToFind => userToFind.Id == userId) ??
-                        (User) (_vuberDbContext.Drivers.FirstOrDefault(userToFind => userToFind.Id == userId)  ??
-                                throw new ArgumentNullException());
+            var user = _vuberDbContext.Clients.FirstOrDefault(userToFind => userToFind.Id == userId) ??
+                       (User) (_vuberDbContext.Drivers.FirstOrDefault(userToFind => userToFind.Id == userId)  ??
+                               throw new ArgumentNullException());
 
             _calculateNewRatingStrategy.CalculateNewRating(user.Rating, rating);
             _vuberDbContext.SaveChanges();
         }
 
-        public List<Ride> FindRidesWithLookingStatus()
+        public void AddPaymentCard(Guid clientId, string cardData)
+        {
+            var client = _vuberDbContext.Clients.FirstOrDefault(clientToFind => clientToFind.Id == clientId) ??
+                         throw new ArgumentNullException();
+            client.PaymentCard = new PaymentCard() {CardData = cardData};
+            _vuberDbContext.SaveChanges();
+        }
+
+        private List<Ride> FindRidesWithLookingStatus()
         {
             return _findRidesWithLookingStatusStrategy.FindRidesWithLookingStatus(_vuberDbContext);
         }
@@ -165,9 +180,25 @@ namespace VuberServer.Controllers
         private void CheckWorkloadLevel()
         {
             WorkloadLevel = WorkloadLevel.Normal;
-            if (_vuberDbContext.Rides.Where(ride => ride.Status == RideStatus.Looking).ToList().Count > _maxLookingRidesForNormalWorkloadLevel)
+            if (_vuberDbContext
+                .Rides
+                .Where(ride => ride.Status == RideStatus.Looking).ToList().Count > _maxLookingRidesForNormalWorkloadLevel)
             {
                 WorkloadLevel = WorkloadLevel.Loaded;
+            }
+        }
+
+        private void WithdrawalForRide(Ride ride)
+        {
+            switch (ride.PaymentType)
+            {
+                case PaymentType.Cash:
+                    //послать уведомление водителю, что с клиента нужно взять столько-то денег?? хз
+                    break;
+                case PaymentType.PaymentCard:
+                    var paymentCard = ride.Client.PaymentCard ?? throw new ArgumentNullException();
+                    //а что здесь вообще? можно либо при создании карты класть на нее рандомное кол-во денег, но я даже не знаю...
+                    break;
             }
         }
     }
