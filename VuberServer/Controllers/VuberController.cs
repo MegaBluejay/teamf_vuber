@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 using VuberCore.Entities;
 using VuberServer.Hubs;
 using VuberCore.Data;
+using VuberCore.Dto;
 using VuberServer.Clients;
 using VuberServer.Strategies.CalculateNewRatingStrategies;
 using VuberServer.Strategies.CalculatePriceStrategies;
@@ -62,6 +63,7 @@ namespace VuberServer.Controllers
                 Created = DateTime.UtcNow,
             };
             _vuberDbContext.Rides.Add(ride);
+            _driverHubContext.Clients.All.RideRequested(new RideToDriver(ride));
             return ride;
         }
 
