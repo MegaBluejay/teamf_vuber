@@ -11,6 +11,7 @@ namespace VuberServer.Controllers
             Guid clientId, 
             Coordinate startLocation, 
             ICollection<Coordinate> targetLocations,
+            PaymentType paymentType,
             RideType rideType);
 
         void DriverTakesRide(Guid driverId, Guid rideId);
@@ -21,8 +22,12 @@ namespace VuberServer.Controllers
 
         void CancelRide(Guid rideId);
         
-        List<Ride> SeeRides(User activeUser);
+        List<Ride> SeeRides(Guid userId);
         
         void SetRating(Rating rating, Guid userId);
+
+        void AddPaymentCard(Guid clientId, string cardData);
+        
+        //void SendNotification(string notification, Guid userToSendNotificationId)
     }
 }
