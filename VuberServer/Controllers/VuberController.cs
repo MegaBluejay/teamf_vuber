@@ -63,7 +63,10 @@ namespace VuberServer.Controllers
                 Created = DateTime.UtcNow,
             };
             _vuberDbContext.Rides.Add(ride);
-            _driverHubContext.Clients.All.RideRequested(new RideToDriver(ride)); // todo select nearby drivers
+            _vuberDbContext.SaveChanges();
+            var drivers = NearbyDrivers(startLocation, rideType);
+            _driverHubContext.Clients.Clients(drivers.Select(driver => driver.Id.ToString()))
+                .RideRequested(new RideToDriver(ride));
             return ride;
         }
 
@@ -224,6 +227,13 @@ namespace VuberServer.Controllers
                     //а что здесь вообще? можно либо при создании карты класть на нее рандомное кол-во денег, но я даже не знаю...
                     break;
             }
+        }
+
+        private IEnumerable<Driver> NearbyDrivers(Coordinate coordinate, RideType rideType)
+        {
+            return _vuberDbContext.Drivers.Where(driver =>
+                GeoCalculator.GetDistance(driver.LastKnownLocation, coordinate, 1, DistanceUnit.Meters) < 1000 &&
+                driver.MinRideLevel <= rideType && rideType <= driver.MaxRideLevel);
         }
     }
 }
