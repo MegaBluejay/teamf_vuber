@@ -16,8 +16,11 @@ namespace VuberServer.Hubs
             _vuberController = vuberController ?? throw new ArgumentNullException(nameof(vuberController));
         }
 
-        public abstract void SeeRides();
-
         public abstract void SetRating(Rating rating, Guid rideId);
+
+        protected Guid GetCurrentId()
+        {
+            return Guid.Parse(Context.User.Identity.Name);
+        }
     }
 }
