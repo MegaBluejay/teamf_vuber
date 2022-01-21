@@ -16,7 +16,7 @@ namespace VuberClientClient.Controllers
 
         [HttpPost]
         [Route("createOrder")]
-        public IActionResult CreateOrder([FromQuery] Coordinate startLocation, [FromQuery] ICollection<Coordinate> targetLocations, [FromQuery] RideType rideType, PaymentType paymentType)
+        public IActionResult CreateOrder([FromQuery] Coordinate startLocation, [FromQuery] ICollection<Coordinate> targetLocations, [FromQuery] RideType rideType, [FromQuery] PaymentType paymentType)
         {
             throw new NotImplementedException();
         }
@@ -30,7 +30,7 @@ namespace VuberClientClient.Controllers
 
         [HttpPost]
         [Route("addPayementCard")]
-        public IActionResult AddPaymentCard(string cardData)
+        public IActionResult AddPaymentCard([FromQuery] string cardData)
         {
             throw new NotImplementedException();
         }
@@ -51,7 +51,7 @@ namespace VuberClientClient.Controllers
 
         [HttpGet]
         [Route("getDriverRating")]
-        public IActionResult GetDriverRating(Guid driverId)
+        public IActionResult GetDriverRating([FromQuery] Guid driverId)
         {
             throw new NotImplementedException();
         }
