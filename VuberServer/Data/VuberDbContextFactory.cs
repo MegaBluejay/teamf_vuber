@@ -2,7 +2,7 @@ using System.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace VuberCore.Data
+namespace VuberServer.Data
 {
     public class VuberDbContextFactory : IDesignTimeDbContextFactory<VuberDbContext>
     {
