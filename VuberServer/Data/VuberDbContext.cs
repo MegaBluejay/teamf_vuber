@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using VuberCore.Entities;
 
-namespace VuberCore.Data
+namespace VuberServer.Data
 {
     public class VuberDbContext : DbContext
     {

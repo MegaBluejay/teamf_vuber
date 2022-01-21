@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using VuberCore.Entities;
-using VuberCore.Data;
+using VuberServer.Data;
 
 namespace VuberServer.Strategies.FindRidesWithLookingStatusStrategies
 {

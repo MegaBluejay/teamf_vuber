@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using VuberCore.Entities;
-using VuberCore.Data;
+using VuberServer.Data;
 
 namespace VuberServer.Strategies.FindRidesWithLookingStatusStrategies
 {

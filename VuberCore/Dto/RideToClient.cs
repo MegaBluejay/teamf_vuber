@@ -6,6 +6,17 @@ namespace VuberCore.Dto
 {
     public class RideToClient
     {
+        public RideToClient(Ride ride)
+        {
+            StartLocation = ride.StartLocation;
+            TargetLocations = ride.TargetLocations;
+            RideType = ride.RideType;
+            Status = ride.Status;
+            Me = new ClientToThemselves(ride.Client);
+            Driver = new DriverToClient(ride.Driver);
+            Cost = ride.Cost;
+        }
+
         public Coordinate StartLocation { get; set; }
         public ICollection<Coordinate> TargetLocations { get; set; }
         public RideType RideType { get; set; }
