@@ -25,6 +25,8 @@ namespace VuberServer.Controllers
 
         List<Ride> SeeRides(Guid userId);
 
+        Rating SeeRating(Guid rideId, Func<Ride, User> userGetter);
+
         void SetRating(Rating rating, Guid rideId, Func<Ride, User> userGetter);
 
         void AddPaymentCard(Guid clientId, string cardData);

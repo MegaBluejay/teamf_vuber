@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Geolocation;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using VuberCore.Entities;
 using VuberServer.Hubs;
 using VuberCore.Dto;
@@ -11,8 +12,11 @@ using VuberServer.Clients;
 using VuberServer.Data;
 using VuberServer.Strategies.CalculateNewRatingStrategies;
 using VuberServer.Strategies.CalculatePriceStrategies;
+using VuberServer.Strategies.CheckWorkloadLevelStrategies;
 using VuberServer.Strategies.CalculateRideDistanceStrategies;
 using VuberServer.Strategies.FindRidesWithLookingStatusStrategies;
+using VuberServer.Strategies.FindNearbyDriversStrategies;
+
 
 namespace VuberServer.Controllers
 {
@@ -22,29 +26,40 @@ namespace VuberServer.Controllers
         private readonly IHubContext<DriverHub, IDriverClient> _driverHubContext;
         private readonly VuberDbContext _vuberDbContext;
         private WorkloadLevel WorkloadLevel;
-        private decimal _maxLookingRidesForNormalWorkloadLevel;
+        private ILogger<VuberController> _logger;
         private ICalculateNewRatingStrategy _calculateNewRatingStrategy;
         private ICalculatePriceStrategy _calculatePriceStrategy;
+        private ICheckWorkloadLevelStrategy _checkWorkloadLevelStrategy;
         private IFindRidesWithLookingStatusStrategy _findRidesWithLookingStatusStrategy;
         private ICalculateRideDistanceStrategy _calculateRideDistanceStrategy;
+        private ICalculateLengthStrategy _calculateLengthStrategy;
+        private IFindNearbyDriversStrategy _findNearbyDriversStrategy;
 
         public VuberController(
             IHubContext<ClientHub, IClientClient> clientHubContext,
             IHubContext<DriverHub, IDriverClient> driverHubContext,
             VuberDbContext vuberDbContext,
-            ICalculateNewRatingStrategy calculateNewRatingStrategy,
+            ILogger<VuberController> logger,
+        ICalculateNewRatingStrategy calculateNewRatingStrategy,
             ICalculatePriceStrategy calculatePriceStrategy,
             IFindRidesWithLookingStatusStrategy findRidesWithLookingStatusStrategy,
-            ICalculateRideDistanceStrategy calculateRideDistanceStrategy)
+            ICalculateRideDistanceStrategy calculateRideDistanceStrategy,
+            ICheckWorkloadLevelStrategy checkWorkloadLevelStrategy,
+            ICalculateLengthStrategy calculateLengthStrategy,
+            IFindNearbyDriversStrategy findNearbyDriversStrategy)
         {
             _clientHubContext = clientHubContext ?? throw new ArgumentNullException(nameof(clientHubContext));
             _driverHubContext = driverHubContext ?? throw new ArgumentNullException(nameof(driverHubContext));
             _vuberDbContext = vuberDbContext;
             WorkloadLevel = WorkloadLevel.Normal;
+            _logger = logger;
             _calculateNewRatingStrategy = calculateNewRatingStrategy;
             _calculatePriceStrategy = calculatePriceStrategy;
             _findRidesWithLookingStatusStrategy = findRidesWithLookingStatusStrategy;
+            _checkWorkloadLevelStrategy = checkWorkloadLevelStrategy;
+            _calculateLengthStrategy = calculateLengthStrategy;
             _calculateRideDistanceStrategy = calculateRideDistanceStrategy;
+            _findNearbyDriversStrategy = findNearbyDriversStrategy;
         }
 
         public Ride CreateNewRide(
@@ -83,6 +98,7 @@ namespace VuberServer.Controllers
             var drivers = NearbyDrivers(startLocation, rideType);
             _driverHubContext.Clients.Clients(drivers.Select(driver => driver.Id.ToString()))
                 .RideRequested(new RideToDriver(ride));
+            _logger.LogInformation("Ride {0} created", ride.Id);
             return ride;
         }
 
@@ -102,6 +118,7 @@ namespace VuberServer.Controllers
             _vuberDbContext.Rides.Update(rideToTake);
             _vuberDbContext.SaveChanges();
             _clientHubContext.Clients.User(rideToTake.Client.Id.ToString()).UpdateRide(new RideToClient(rideToTake));
+            _logger.LogInformation("Ride {0} has been taken by driver {1}", rideToTake.Id, driverToTakeRide.Id);
             return true;
         }
 
@@ -114,6 +131,7 @@ namespace VuberServer.Controllers
             _vuberDbContext.Rides.Update(ride);
             _vuberDbContext.SaveChanges();
             _clientHubContext.Clients.User(ride.Client.Id.ToString()).UpdateRide(new RideToClient(ride));
+            _logger.LogInformation("Driver arrived to client for ride {0}", ride.Id);
         }
 
         public void RideCompleted(Guid rideId)
@@ -124,6 +142,7 @@ namespace VuberServer.Controllers
             ride.Status = RideStatus.Complete;
             ride.Finished = DateTime.UtcNow;
             _vuberDbContext.Rides.Update(ride);
+            _logger.LogInformation("Ride {0} completed", ride.Id);
         }
 
         public void PassCheckpoint(Guid rideId, int checkpointNumber)
@@ -148,14 +167,16 @@ namespace VuberServer.Controllers
                 case RideStatus.InProgress:
                     ride.Status = RideStatus.Cancelled;
                     //снятие денег с клиента за часть поездки??
-                    List<Coordinate> coordinates = new List<Coordinate>();
-                    foreach (var checkpoint in ride.Checkpoints)
-                    {
-                        if (checkpoint.IsPassed)
-                            coordinates.Add(checkpoint.Coordinate);
-                    }
+//                     List<Coordinate> coordinates = new List<Coordinate>();
+//                     foreach (var checkpoint in ride.Checkpoints)
+//                     {
+//                         if (checkpoint.IsPassed)
+//                             coordinates.Add(checkpoint.Coordinate);
+//                     }
 
-                    decimal distanceTravelled = _calculateRideDistanceStrategy.Calculate(ride.StartLocation, coordinates);
+//                     decimal distanceTravelled = _calculateRideDistanceStrategy.Calculate(ride.StartLocation, coordinates);
+
+                    WithdrawalForRide(ride);
                     break;
                 default:
                     throw new Exception("Ride cannot be cancelled");
@@ -163,6 +184,7 @@ namespace VuberServer.Controllers
             ride.Finished = DateTime.UtcNow;
             _vuberDbContext.Rides.Update(ride);
             _driverHubContext.Clients.User(ride.Driver.Id.ToString()).RideCancelled();
+            _logger.LogInformation("Ride {0} canceled", ride.Id);
         }
 
         private decimal CalculateRideLength(Coordinate startLocation, List<Coordinate> targetLocations)
@@ -179,11 +201,20 @@ namespace VuberServer.Controllers
 
         public List<Ride> SeeRides(Guid userId)
         {
-            var rides = _vuberDbContext.Clients.FirstOrDefault(userToFind => userToFind.Id == userId).Rides ??
-                        (_vuberDbContext.Drivers.FirstOrDefault(userToFind => userToFind.Id == userId).Rides  ??
-                         throw new ArgumentNullException());
-
+            var user = _vuberDbContext.Clients.FirstOrDefault(userToFind => userToFind.Id == userId) ??
+                        (User) (_vuberDbContext.Drivers.FirstOrDefault(userToFind => userToFind.Id == userId) ?? 
+                                throw new ArgumentNullException());
+            var rides = user.Rides;
+            _logger.LogInformation("Rides of user {0} returned", user.Id);
             return rides;
+        }
+
+        public Rating SeeRating(Guid rideId, Func<Ride, User> userGetter)
+        {
+            var ride = _vuberDbContext.Rides.FirstOrDefault(ride => ride.Id == rideId);
+            var user = userGetter.Invoke(ride);
+            _logger.LogInformation("Rating of user {0} returned", user.Id);
+            return user.Rating;
         }
 
         public void SetRating(Rating rating, Guid rideId, Func<Ride, User> userGetter)
@@ -192,6 +223,7 @@ namespace VuberServer.Controllers
             var user = userGetter.Invoke(ride);
             _calculateNewRatingStrategy.CalculateNewRating(user.Rating, rating);
             _vuberDbContext.SaveChanges();
+            _logger.LogInformation("Rating of user {0} set to {1}", user.Id, rating.Value);
         }
 
         public void AddPaymentCard(Guid clientId, string cardData)
@@ -200,20 +232,23 @@ namespace VuberServer.Controllers
                          throw new ArgumentNullException();
             client.PaymentCard = new PaymentCard() {CardData = cardData};
             _vuberDbContext.SaveChanges();
+            _logger.LogInformation("Client {0} added payment card", client.Id);
         }
 
         public void UpdateDriverLocation(Guid driverId, Coordinate location)
         {
-            var driver = _vuberDbContext.Drivers.FirstOrDefault(driver => driver.Id == driverId);
+            var driver = _vuberDbContext.Drivers.FirstOrDefault(driverToFind => driverToFind.Id == driverId) ??
+                         throw new ArgumentNullException();
             driver.LastKnownLocation = location;
             driver.LocationUpdatedAt = DateTime.UtcNow;
             _vuberDbContext.SaveChanges();
-            var ride = _vuberDbContext.Rides.FirstOrDefault(ride =>
-                ride.Driver.Id == driverId && ride.Status == RideStatus.Waiting);
+            var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind =>
+                rideToFind.Driver.Id == driverId && rideToFind.Status == RideStatus.Waiting);
             if (ride != null)
             {
                 _clientHubContext.Clients.User(ride.Client.Id.ToString()).UpdateDriverLocation(location);
             }
+            _logger.LogInformation("Driver {0} location updated", driver.Id);
         }
 
         private List<Ride> FindRidesWithLookingStatus()
@@ -223,13 +258,10 @@ namespace VuberServer.Controllers
 
         private void CheckWorkloadLevel()
         {
-            WorkloadLevel = WorkloadLevel.Normal;
-            if (_vuberDbContext
+            WorkloadLevel = _checkWorkloadLevelStrategy.CheckWorkloadLevel(
+                _vuberDbContext
                 .Rides
-                .Where(ride => ride.Status == RideStatus.Looking).ToList().Count > _maxLookingRidesForNormalWorkloadLevel)
-            {
-                WorkloadLevel = WorkloadLevel.Loaded;
-            }
+                .Where(ride => ride.Status == RideStatus.Looking).ToList().Count);
         }
 
         private void WithdrawalForRide(Ride ride)
@@ -248,9 +280,7 @@ namespace VuberServer.Controllers
 
         private IEnumerable<Driver> NearbyDrivers(Coordinate coordinate, RideType rideType)
         {
-            return _vuberDbContext.Drivers.Where(driver =>
-                GeoCalculator.GetDistance(driver.LastKnownLocation, coordinate, 1, DistanceUnit.Meters) < 1000 &&
-                driver.MinRideLevel <= rideType && rideType <= driver.MaxRideLevel);
+            return _findNearbyDriversStrategy.FindNearbyDrivers(_vuberDbContext.Drivers, coordinate, rideType, _calculateLengthStrategy);
         }
     }
 }
