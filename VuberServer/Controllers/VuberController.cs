@@ -35,8 +35,7 @@ namespace VuberServer.Controllers
             ICalculateNewRatingStrategy calculateNewRatingStrategy,
             ICalculatePriceStrategy calculatePriceStrategy,
             IFindRidesWithLookingStatusStrategy findRidesWithLookingStatusStrategy,
-            ICalculateRideDistanceStrategy calculateRideDistanceStrategy)
-            IFindRidesWithLookingStatusStrategy findRidesWithLookingStatusStrategy,
+            ICalculateRideDistanceStrategy calculateRideDistanceStrategy,
             ICheckWorkloadLevelStrategy checkWorkloadLevelStrategy)
         {
             _clientHubContext = clientHubContext ?? throw new ArgumentNullException(nameof(clientHubContext));
