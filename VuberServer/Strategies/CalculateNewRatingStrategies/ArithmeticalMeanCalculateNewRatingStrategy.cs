@@ -4,9 +4,9 @@ namespace VuberServer.Strategies.CalculateNewRatingStrategies
 {
     public class ArithmeticalMeanCalculateNewRatingStrategy : ICalculateNewRatingStrategy
     {
-        public void CalculateNewRating(Rating driverRating, Rating lastRideRating)
+        public void CalculateNewRating(Rating driverRating, Mark lastRideMark)
         {
-            driverRating.Value = (driverRating.Value * driverRating.RidesNumber + lastRideRating.Value) / (driverRating.RidesNumber + 1);
+            driverRating.Value = new Mark((driverRating.Value.Value * driverRating.RidesNumber + lastRideMark.Value) / (driverRating.RidesNumber + 1));
             ++driverRating.RidesNumber;
         }
     }

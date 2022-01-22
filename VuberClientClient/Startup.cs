@@ -12,6 +12,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using VuberCore.Hubs;
+using VuberClientClient.Hubs;
 
 namespace VuberClientClient
 {
@@ -37,6 +39,8 @@ namespace VuberClientClient
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "VuberClientClient", Version = "v1" });
             });
+            //services.AddScoped<IClientHub, ClientHubWrapper>();
+            services.AddTransient<ClientHubWrapper>(new ClientHubWrapper()); // add parameters to constructor
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

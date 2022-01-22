@@ -31,9 +31,19 @@ namespace VuberServer.Hubs
             return _vuberController.SeeRides(GetCurrentId()).Select(ride => new RideToClient(ride));
         }
 
-        public override void SetRating(Rating rating, Guid rideId)
+        public override void SetRating(Mark mark, Guid rideId)
         {
-            _vuberController.SetRating(rating, rideId, ride => ride.Driver);
+            _vuberController.SetRating(mark, rideId, ride => ride.Driver);
+        }
+
+        public void CancelOrder()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Rating GetDriverRating(Guid driverGuid)
+        {
+            throw new NotImplementedException();
         }
     }
 }

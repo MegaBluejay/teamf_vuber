@@ -17,14 +17,19 @@ namespace VuberClientClient.Hubs
             _hubConnection = hubConnection ?? throw new ArgumentNullException(nameof(hubConnection));
         }
 
-        public void SetRating(Rating rating, Guid rideId)
+        public void SetRating(Mark mark, Guid rideId)
         {
-            _hubConnection.InvokeAsync(nameof(SetRating), rating, rideId);
+            _hubConnection.InvokeAsync(nameof(SetRating), mark, rideId);
         }
 
         public void OrderRide(RideOrder rideOrder)
         {
             _hubConnection.InvokeAsync(nameof(OrderRide), rideOrder);
+        }
+
+        public void CancelOrder()
+        {
+            _hubConnection.InvokeAsync(nameof(CancelOrder));
         }
 
         public void AddPaymentCard(string cardData)
@@ -35,6 +40,11 @@ namespace VuberClientClient.Hubs
         public IEnumerable<RideToClient> SeeRides()
         {
             return _hubConnection.InvokeAsync<IEnumerable<RideToClient>>(nameof(SeeRides)).Result;
+        }
+
+        public Rating GetDriverRating(Guid driverId)
+        {
+            return _hubConnection.InvokeAsync<Rating>(nameof(GetDriverRating), driverId).Result;
         }
     }
 }
