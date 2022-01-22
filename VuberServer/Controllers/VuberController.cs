@@ -70,7 +70,7 @@ namespace VuberServer.Controllers
             var clientForRide = _vuberDbContext.Clients.FirstOrDefault(client => client.Id == clientId) ??
                                 throw new ArgumentNullException();
 
-            var checkpoints = path.Coordinates.Skip(1).Select(coordinate => new Checkpoint() {Coordinate = coordinate, IsPassed = false,}).ToList();
+            var checkpoints = path.Coordinates.Skip(1).Select(coordinate => new Checkpoint() {Coordinate = new Point(coordinate), IsPassed = false,}).ToList();
 
             var ride = new Ride()
             {
@@ -128,11 +128,7 @@ namespace VuberServer.Controllers
         {
             var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind => rideToFind.Id == rideId) ??
                        throw new ArgumentNullException();
-            var coordinates = new List<Coordinate>();
-            foreach (var checkpoint in ride.Checkpoints)
-            {
-                coordinates.Add(checkpoint.Coordinate);
-            }
+            var coordinates = ride.Checkpoints.Select(checkpoint => checkpoint.Coordinate).ToList();
             WithdrawalForRide(ride, CalculatePrice(ride.RideType, ride.Path));
             ride.Status = RideStatus.Complete;
             ride.Finished = DateTime.UtcNow;
@@ -161,14 +157,9 @@ namespace VuberServer.Controllers
                     break;
                 case RideStatus.InProgress:
                     ride.Status = RideStatus.Cancelled;
-                     List<Coordinate> coordinates = new List<Coordinate>();
-                     foreach (var checkpoint in ride.Checkpoints)
-                     {
-                         if (checkpoint.IsPassed)
-                             coordinates.Add(checkpoint.Coordinate);
-                     }
+                     var coordinates = (from checkpoint in ride.Checkpoints where checkpoint.IsPassed select checkpoint.Coordinate).ToList();
 
-                     decimal distanceTravelled = _calculateRideDistanceStrategy.Calculate(ride.Path);
+                    decimal distanceTravelled = _calculateRideDistanceStrategy.Calculate(ride.Path);
                     decimal money = _calculatePriceStrategy.CalculatePrice(distanceTravelled, ride.RideType, WorkloadLevel);
                     WithdrawalForRide(ride, money);
                     break;
