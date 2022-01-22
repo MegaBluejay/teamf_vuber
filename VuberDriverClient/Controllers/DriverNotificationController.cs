@@ -21,6 +21,8 @@ namespace VuberDriverClient.Controllers
 
         public bool RideCancelled => _rideCancelled;
 
+        public bool CashPayment => _takeCashPayment;
+
         public void AddRideRequested(RideToDriver rideToDriver) => _ridesRequested.Add(rideToDriver);
 
         public void CancelRide() => _rideCancelled = true;

@@ -7,6 +7,7 @@ namespace VuberDriverClient.Controllers
     {
         IEnumerable<RideToDriver> RidesRequested { get; }
         bool RideCancelled { get; }
+        bool CashPayment { get; }
         void AddRideRequested(RideToDriver rideToDriver);
         void CancelRide();
     }
