@@ -10,7 +10,7 @@ namespace VuberCore.Dto
             Rating = driver.Rating;
         }
 
-        public string Name { get; set; }
-        public Rating Rating { get; set; }
+        public string Name { get; }
+        public Rating Rating { get; }
     }
 }

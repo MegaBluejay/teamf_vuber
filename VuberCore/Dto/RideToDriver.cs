@@ -17,12 +17,12 @@ namespace VuberCore.Dto
             Cost = ride.Cost;
         }
 
-        public Coordinate StartLocation { get; set; }
-        public ICollection<Coordinate> TargetLocations { get; set; }
-        public RideType RideType { get; set; }
-        public RideStatus Status { get; set; }
-        public DriverToThemselves Me { get; set; }
-        public ClientToDriver Client { get; set; }
-        public decimal Cost { get; set; }
+        public Coordinate StartLocation { get; }
+        public ICollection<Coordinate> TargetLocations { get; }
+        public RideType RideType { get; }
+        public RideStatus Status { get; }
+        public DriverToThemselves Me { get; }
+        public ClientToDriver Client { get; }
+        public decimal Cost { get; }
     }
 }
