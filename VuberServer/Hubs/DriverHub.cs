@@ -16,33 +16,18 @@ namespace VuberServer.Hubs
             : base(vuberController) { }
 
 
-        public IEnumerable<RideToDriver> SeeRides()
-        {
-            return _vuberController.SeeRides(GetCurrentId()).Select(ride => new RideToDriver(ride));
-        }
+        public IEnumerable<RideToDriver> SeeRides() => _vuberController.SeeRides(GetCurrentId()).Select(ride => new RideToDriver(ride));
 
-        public override void SetRating(Mark mark, Guid rideId)
-        {
-            _vuberController.SetRating(mark, rideId, ride => ride.Client);
-        }
+        public override void SetRating(Mark rating, Guid rideId) => _vuberController.SetRating(mark, rideId, ride => ride.Client);
 
-        public bool AcceptOrder(Guid rideId)
-        {
-            return _vuberController.DriverTakesRide(GetCurrentId(), rideId);
-        }
+        public bool AcceptOrder(Guid rideId) => _vuberController.DriverTakesRide(GetCurrentId(), rideId);
 
         public void RejectOrder(Guid rideId)
         {
         }
 
-        public void NotifyClientAboutArrival(Guid rideId)
-        {
-            _vuberController.DriverArrives(rideId);
-        }
+        public void NotifyClientAboutArrival(Guid rideId) => _vuberController.DriverArrives(rideId);
 
-        public void SendCurrentLocation(Coordinate currentLocation)
-        {
-            _vuberController.UpdateDriverLocation(GetCurrentId(), currentLocation);
-        }
+        public void SendCurrentLocation(Coordinate currentLocation) => _vuberController.UpdateDriverLocation(GetCurrentId(), currentLocation);
     }
 }
