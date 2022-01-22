@@ -27,5 +27,15 @@ namespace VuberClientClient.Hubs
         public void AddPaymentCard(string cardData) => _hubConnection.InvokeAsync(nameof(AddPaymentCard), cardData);
 
         public IEnumerable<RideToClient> SeeRides() => _hubConnection.InvokeAsync<IEnumerable<RideToClient>>(nameof(SeeRides)).Result;
+
+        public void CancelOrder()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Rating GetDriverRating(Guid driverGuid)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

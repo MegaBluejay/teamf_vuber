@@ -18,7 +18,7 @@ namespace VuberServer.Hubs
 
         public IEnumerable<RideToDriver> SeeRides() => _vuberController.SeeRides(GetCurrentId()).Select(ride => new RideToDriver(ride));
 
-        public override void SetRating(Mark rating, Guid rideId) => _vuberController.SetRating(mark, rideId, ride => ride.Client);
+        public override void SetRating(Mark mark, Guid rideId) => _vuberController.SetRating(mark, rideId, ride => ride.Client);
 
         public bool AcceptOrder(Guid rideId) => _vuberController.DriverTakesRide(GetCurrentId(), rideId);
 
@@ -29,5 +29,7 @@ namespace VuberServer.Hubs
         public void NotifyClientAboutArrival(Guid rideId) => _vuberController.DriverArrives(rideId);
 
         public void SendCurrentLocation(Coordinate currentLocation) => _vuberController.UpdateDriverLocation(GetCurrentId(), currentLocation);
+
+        public RideToDriver SeeOrderDetails(Guid rideId) => _vuberController.SeeOrderDetails(rideId);
     }
 }

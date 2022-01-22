@@ -20,7 +20,7 @@ namespace VuberDriverClient.Hubs
             _hubConnection.On("RideCancelled", driverNotificationController.CancelRide);
         }
 
-        public void SetRating(Rating rating, Guid rideId) => _hubConnection.InvokeAsync(nameof(SetRating), rating, rideId);
+        public void SetRating(Mark rating, Guid rideId) => _hubConnection.InvokeAsync(nameof(SetRating), rating, rideId);
 
         public IEnumerable<RideToDriver> SeeRides() => _hubConnection.InvokeAsync<IEnumerable<RideToDriver>>(nameof(SeeRides)).Result;
 
@@ -31,5 +31,7 @@ namespace VuberDriverClient.Hubs
         public void NotifyClientAboutArrival(Guid rideId) => _hubConnection.InvokeAsync(nameof(NotifyClientAboutArrival), rideId);
 
         public void SendCurrentLocation(Coordinate currentLocation) => _hubConnection.InvokeAsync(nameof(SendCurrentLocation), currentLocation);
+
+        public RideToDriver SeeOrderDetails(Guid rideId) => _hubConnection.InvokeAsync<RideToDriver>(nameof(SeeOrderDetails), rideId).Result;
     }
 }

@@ -10,6 +10,7 @@ namespace VuberCore.Hubs
         IEnumerable<RideToDriver> SeeRides();
         bool AcceptOrder(Guid rideId);
         void RejectOrder(Guid rideId);
+        RideToDriver SeeOrderDetails(Guid rideId);
         void NotifyClientAboutArrival(Guid rideId);
         void SendCurrentLocation(Coordinate currentLocation);
     }
