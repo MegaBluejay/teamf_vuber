@@ -1,59 +1,65 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Geolocation;
 using VuberCore.Entities;
+using VuberCore.Dto;
+using VuberClientClient.Hubs;
 
 namespace VuberClientClient.Controllers
 {
     [ApiController]
     [Route("/client")]
-    public class ClientController
+    public class ClientController : ControllerBase
     {
-        public ClientController() // сюда нужно передать hub connection
+        private ClientHubWrapper _hubWrapper;
+        public ClientController(ClientHubWrapper hubWrapper)
         {
+            _hubWrapper = hubWrapper;
         }
 
         [HttpPost]
-        [Route("createOrder")]
-        public IActionResult CreateOrder([FromQuery] Coordinate startLocation, [FromQuery] ICollection<Coordinate> targetLocations, [FromQuery] RideType rideType, [FromQuery] PaymentType paymentType)
+        [Route("create-order")]
+        public IActionResult OrderRide([FromQuery] RideOrder rideOrder)
         {
-            throw new NotImplementedException();
+            _hubWrapper.OrderRide(rideOrder);
+            return Ok();
         }
 
         [HttpPost]
-        [Route("cancelOrder")]
+        [Route("cancel-order")]
         public IActionResult CancelOrder()
         {
-            throw new NotImplementedException();
+            _hubWrapper.CancelOrder();
+            return Ok();
         }
 
         [HttpPost]
-        [Route("addPayementCard")]
+        [Route("add-payment-card")]
         public IActionResult AddPaymentCard([FromQuery] string cardData)
         {
-            throw new NotImplementedException();
+            _hubWrapper.AddPaymentCard(cardData);
+            return Ok();
         }
 
         [HttpGet]
-        [Route("seeRides")]
+        [Route("see-rides")]
         public IActionResult SeeRides()
         {
-            throw new NotImplementedException();
+            return Ok(_hubWrapper.SeeRides());
         }
 
         [HttpGet]
-        [Route("setRating")]
-        public IActionResult SetRating([FromQuery] double value, [FromQuery] Guid driverId)
+        [Route("set-rating")]
+        public IActionResult SetRating([FromQuery] Mark mark, [FromQuery] Guid driverId)
         {
-            throw new NotImplementedException();
+            _hubWrapper.SetRating(mark, driverId);
+            return Ok();
         }
 
         [HttpGet]
-        [Route("getDriverRating")]
+        [Route("get-driver-rating")]
         public IActionResult GetDriverRating([FromQuery] Guid driverId)
         {
-            throw new NotImplementedException();
+            return Ok(_hubWrapper.GetDriverRating(driverId));
         }
     }
 }

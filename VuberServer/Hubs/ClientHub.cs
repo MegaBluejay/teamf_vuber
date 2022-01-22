@@ -1,43 +1,33 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Geolocation;
 using VuberCore.Dto;
 using VuberCore.Entities;
+using VuberCore.Hubs;
 using VuberServer.Clients;
 using VuberServer.Controllers;
 
 namespace VuberServer.Hubs
 {
-    public class ClientHub : VuberHub<IClientClient>
+    public class ClientHub : VuberHub<IClientClient>, IClientHub
     {
         public ClientHub(IVuberController vuberController)
             : base(vuberController) { }
 
         public void OrderRide(RideOrder rideOrder)
         {
-            _vuberController.CreateNewRide(Guid.Empty, rideOrder.StartLocation, rideOrder.TargetLocations.ToList(),
+            _vuberController.CreateNewRide(Guid.Empty, rideOrder.Path,
                 rideOrder.PaymentType, rideOrder.RideType);
         }
 
-        public void AddPaymentCard(string cardData)
-        {
-            _vuberController.AddPaymentCard(GetCurrentId(), cardData);
-        }
+        public void CancelOrder() => throw new NotImplementedException();
 
-        public IEnumerable<RideToClient> SeeRides()
-        {
-            return _vuberController.SeeRides(GetCurrentId()).Select(ride => new RideToClient(ride));
-        }
+        public void AddPaymentCard(string cardData) => _vuberController.AddPaymentCard(GetCurrentId(), cardData);
 
-        public override Rating SeeRating(Guid rideId)
-        {
-            return _vuberController.SeeRating(rideId, ride => ride.Client);
-        }
+        public IEnumerable<RideToClient> SeeRides() => _vuberController.SeeRides(GetCurrentId()).Select(ride => new RideToClient(ride));
 
-        public override void SetRating(Rating rating, Guid rideId)
-        {
-            _vuberController.SetRating(rating, rideId, ride => ride.Driver);
-        }
+        public Rating GetDriverRating(Guid driverGuid) => throw new NotImplementedException();
+
+        public override void SetRating(Mark mark, Guid rideId) => _vuberController.SetRating(mark, rideId, ride => ride.Driver);
     }
 }

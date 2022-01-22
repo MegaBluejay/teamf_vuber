@@ -4,6 +4,6 @@ namespace VuberCore.Entities
 {
     public class Client : User
     {
-        public PaymentCard PaymentCard { get; set; }
+        public virtual PaymentCard PaymentCard { get; set; }
     }
 }

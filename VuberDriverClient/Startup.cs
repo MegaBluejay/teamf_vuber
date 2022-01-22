@@ -6,12 +6,16 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using VuberCore.Hubs;
+using VuberDriverClient.Controllers;
+using VuberDriverClient.Hubs;
 
 namespace VuberDriverClient
 {
@@ -37,6 +41,13 @@ namespace VuberDriverClient
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "VuberDriverClient", Version = "v1" });
             });
+            var hubConnection = new HubConnectionBuilder()
+                .WithUrl("localhost/driver")
+                .WithAutomaticReconnect()
+                .Build();
+            var driverNotificationController = new DriverNotificationController();
+            services.AddSingleton<IDriverHub, DriverHubWrapper>(_ =>
+                new DriverHubWrapper(hubConnection, driverNotificationController));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

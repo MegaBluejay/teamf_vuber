@@ -1,4 +1,5 @@
-using Geolocation;
+
+using NetTopologySuite.Geometries;
 
 namespace VuberCore.Entities
 {

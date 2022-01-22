@@ -1,16 +1,15 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Geolocation;
+using NetTopologySuite.Geometries;
 
 namespace VuberCore.Entities
 {
     public class Ride : Entity
     {
         [Required]
-        public Client Client { get; set; }
-        public Driver Driver { get; set; }
+        public virtual Client Client { get; set; }
+        public virtual Driver Driver { get; set; }
         [Required]
         public decimal Cost { get; set; }
         [Required]
@@ -18,11 +17,11 @@ namespace VuberCore.Entities
         [Required]
         public RideType RideType { get; set; }
         [Required]
+        public List<Checkpoint> Checkpoints { get; set; }
+        [Required]
         public RideStatus Status { get; set; }
         [Required]
-        public Coordinate StartLocation { get; set; }
-        [Required]
-        public List<Checkpoint> Checkpoints { get; set; }
+        public LineString Path { get; set; }
         [Required]
         public DateTime Created { get; set; }
         public DateTime Found { get; set; }

@@ -1,17 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using VuberClientClient.Controllers;
+using VuberClientClient.Hubs;
+using VuberCore.Hubs;
 
 namespace VuberClientClient
 {
@@ -37,6 +33,13 @@ namespace VuberClientClient
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "VuberClientClient", Version = "v1" });
             });
+            var hubConnection = new HubConnectionBuilder()
+                .WithUrl("localhost/client")
+                .WithAutomaticReconnect()
+                .Build();
+            var clientNotificationController = new ClientNotificationController();
+            services.AddSingleton<IClientHub, ClientHubWrapper>(_ =>
+                new ClientHubWrapper(hubConnection, clientNotificationController));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

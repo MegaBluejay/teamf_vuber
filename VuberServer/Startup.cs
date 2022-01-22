@@ -28,13 +28,14 @@ namespace VuberServer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var connectionStringSettings = ConfigurationManager.ConnectionStrings["VuberDatabase"];
             services.AddRazorPages();
             services.AddSignalR();
+            var connectionString = Configuration.GetConnectionString("VuberDatabase");
             services.AddDbContext<VuberDbContext>(options =>
                 options
                     .UseLazyLoadingProxies()
-                    .UseNpgsql(connectionStringSettings.ConnectionString));
+                    .UseNpgsql(connectionString,
+                        options => options.UseNetTopologySuite()));
             services.AddSingleton<IUserIdProvider, VuberUserIdProvider>();
         }
 

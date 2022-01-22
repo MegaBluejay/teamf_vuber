@@ -1,15 +1,15 @@
 using System;
-using Geolocation;
+using NetTopologySuite.Geometries;
 
 namespace VuberServer.Strategies.CalculateRideDistanceStrategies
 {
     public class LinearLengthStrategy : ICalculateLengthStrategy
     {
-        public decimal Calculate(Coordinate startLocation, Coordinate endLocation)
+        public decimal Calculate(Point startLocation, Point endLocation)
         {
             return Convert.ToDecimal(
-                Math.Sqrt(Math.Pow(endLocation.Latitude - startLocation.Latitude, 2) 
-                          + Math.Pow(endLocation.Longitude - startLocation.Longitude, 2)));
+                Math.Sqrt(Math.Pow(endLocation.X - startLocation.X, 2)
+                          + Math.Pow(endLocation.Y - startLocation.Y, 2)));
         }
     }
 }

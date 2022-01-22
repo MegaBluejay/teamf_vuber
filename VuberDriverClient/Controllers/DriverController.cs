@@ -1,5 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Mvc;
+using VuberCore.Entities;
+using VuberDriverClient.Hubs;
 
 namespace VuberDriverClient.Controllers
 {
@@ -7,44 +9,49 @@ namespace VuberDriverClient.Controllers
     [Route("/driver")]
     public class DriverController : ControllerBase
     {
+        private DriverHubWrapper _hubWrapper;
 
-        public DriverController() // сюда нужно передать hub connection
+        public DriverController(DriverHubWrapper hubWrapper)
         {
+            _hubWrapper = hubWrapper;
         }
 
         [HttpGet]
-        [Route("seeRides")]
+        [Route("see-rides")]
         public IActionResult SeeRides()
         {
-            throw new NotImplementedException();
+            return Ok(_hubWrapper.SeeRides());
         }
 
         [HttpPost]
-        [Route("setRating")]
-        public IActionResult SetRating([FromQuery] double value, [FromQuery] Guid clientGuid)
+        [Route("set-rating")]
+        public IActionResult SetRating([FromQuery] Mark mark, [FromQuery] Guid rideId)
         {
-            throw new NotImplementedException();
+            _hubWrapper.SetRating(mark, rideId);
+            return Ok();
         }
         
         [HttpGet]
-        [Route("seeOrderDetails")]
-        public IActionResult SeeOrderDetails()
+        [Route("see-order-details")]
+        public IActionResult SeeOrderDetails(Guid rideId)
         {
-            throw new NotImplementedException();
+            return Ok(_hubWrapper.SeeOrderDetails(rideId));
         }
 
         [HttpPost]
-        [Route("acceptOrder")]
-        public IActionResult AcceptOrder()
+        [Route("accept-order")]
+        public IActionResult AcceptOrder(Guid rideId)
         {
-            throw new NotImplementedException();
+            _hubWrapper.AcceptOrder(rideId);
+            return Ok();
         }
 
         [HttpPost]
-        [Route("rejectOrder")]
-        public IActionResult RejectOrder()
+        [Route("reject-order")]
+        public IActionResult RejectOrder(Guid rideId)
         {
-            throw new NotImplementedException();
+            _hubWrapper.RejectOrder(rideId);
+            return Ok();
         }
     }
 }

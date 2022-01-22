@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using NetTopologySuite.Geometries;
 using VuberCore.Entities;
-using Geolocation;
 
 namespace VuberServer.Controllers
 {
@@ -9,15 +9,14 @@ namespace VuberServer.Controllers
     {
         Ride CreateNewRide(
             Guid clientId,
-            Coordinate startLocation,
-            List<Coordinate> targetLocations,
+            LineString path,
             PaymentType paymentType,
             RideType rideType);
 
         bool DriverTakesRide(Guid driverId, Guid rideId);
 
         void DriverArrives(Guid rideId);
-        
+
         void PassCheckpoint(Guid rideId, int checkpointNumber);
         void RideCompleted(Guid rideId);
 
@@ -25,13 +24,11 @@ namespace VuberServer.Controllers
 
         List<Ride> SeeRides(Guid userId);
 
-        Rating SeeRating(Guid rideId, Func<Ride, User> userGetter);
-
-        void SetRating(Rating rating, Guid rideId, Func<Ride, User> userGetter);
+        void SetRating(Mark rating, Guid rideId, Func<Ride, User> userGetter);
 
         void AddPaymentCard(Guid clientId, string cardData);
 
-        void UpdateDriverLocation(Guid driverId, Coordinate location);
+        void UpdateDriverLocation(Guid driverId, Point location);
 
         //void SendNotification(string notification, Guid userToSendNotificationId)
     }
