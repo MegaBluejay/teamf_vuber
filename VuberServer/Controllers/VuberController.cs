@@ -10,6 +10,7 @@ using VuberServer.Clients;
 using VuberServer.Data;
 using VuberServer.Strategies.CalculateNewRatingStrategies;
 using VuberServer.Strategies.CalculatePriceStrategies;
+using VuberServer.Strategies.CheckWorkloadLevelStrategies;
 using VuberServer.Strategies.FindRidesWithLookingStatusStrategies;
 
 namespace VuberServer.Controllers
@@ -20,9 +21,9 @@ namespace VuberServer.Controllers
         private readonly IHubContext<DriverHub, IDriverClient> _driverHubContext;
         private readonly VuberDbContext _vuberDbContext;
         private WorkloadLevel WorkloadLevel;
-        private decimal _maxLookingRidesForNormalWorkloadLevel;
         private ICalculateNewRatingStrategy _calculateNewRatingStrategy;
         private ICalculatePriceStrategy _calculatePriceStrategy;
+        private ICheckWorkloadLevelStrategy _checkWorkloadLevelStrategy;
         private IFindRidesWithLookingStatusStrategy _findRidesWithLookingStatusStrategy;
 
         public VuberController(
@@ -31,7 +32,8 @@ namespace VuberServer.Controllers
             VuberDbContext vuberDbContext,
             ICalculateNewRatingStrategy calculateNewRatingStrategy,
             ICalculatePriceStrategy calculatePriceStrategy,
-            IFindRidesWithLookingStatusStrategy findRidesWithLookingStatusStrategy)
+            IFindRidesWithLookingStatusStrategy findRidesWithLookingStatusStrategy,
+            ICheckWorkloadLevelStrategy checkWorkloadLevelStrategy)
         {
             _clientHubContext = clientHubContext ?? throw new ArgumentNullException(nameof(clientHubContext));
             _driverHubContext = driverHubContext ?? throw new ArgumentNullException(nameof(driverHubContext));
@@ -40,6 +42,7 @@ namespace VuberServer.Controllers
             _calculateNewRatingStrategy = calculateNewRatingStrategy;
             _calculatePriceStrategy = calculatePriceStrategy;
             _findRidesWithLookingStatusStrategy = findRidesWithLookingStatusStrategy;
+            _checkWorkloadLevelStrategy = checkWorkloadLevelStrategy;
         }
 
         public Ride CreateNewRide(
@@ -206,13 +209,10 @@ namespace VuberServer.Controllers
 
         private void CheckWorkloadLevel()
         {
-            WorkloadLevel = WorkloadLevel.Normal;
-            if (_vuberDbContext
+            WorkloadLevel = _checkWorkloadLevelStrategy.CheckWorkloadLevel(
+                _vuberDbContext
                 .Rides
-                .Where(ride => ride.Status == RideStatus.Looking).ToList().Count > _maxLookingRidesForNormalWorkloadLevel)
-            {
-                WorkloadLevel = WorkloadLevel.Loaded;
-            }
+                .Where(ride => ride.Status == RideStatus.Looking).ToList().Count);
         }
 
         private void WithdrawalForRide(Ride ride)
