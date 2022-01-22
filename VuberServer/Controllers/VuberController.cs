@@ -27,6 +27,7 @@ namespace VuberServer.Controllers
         private ICheckWorkloadLevelStrategy _checkWorkloadLevelStrategy;
         private IFindRidesWithLookingStatusStrategy _findRidesWithLookingStatusStrategy;
         private ICalculateRideDistanceStrategy _calculateRideDistanceStrategy;
+        private ICalculateLengthStrategy _calculateLengthStrategy;
 
         public VuberController(
             IHubContext<ClientHub, IClientClient> clientHubContext,
@@ -36,7 +37,8 @@ namespace VuberServer.Controllers
             ICalculatePriceStrategy calculatePriceStrategy,
             IFindRidesWithLookingStatusStrategy findRidesWithLookingStatusStrategy,
             ICalculateRideDistanceStrategy calculateRideDistanceStrategy,
-            ICheckWorkloadLevelStrategy checkWorkloadLevelStrategy)
+            ICheckWorkloadLevelStrategy checkWorkloadLevelStrategy,
+            ICalculateLengthStrategy calculateLengthStrategy)
         {
             _clientHubContext = clientHubContext ?? throw new ArgumentNullException(nameof(clientHubContext));
             _driverHubContext = driverHubContext ?? throw new ArgumentNullException(nameof(driverHubContext));
@@ -46,6 +48,7 @@ namespace VuberServer.Controllers
             _calculatePriceStrategy = calculatePriceStrategy;
             _findRidesWithLookingStatusStrategy = findRidesWithLookingStatusStrategy;
             _checkWorkloadLevelStrategy = checkWorkloadLevelStrategy;
+            _calculateLengthStrategy = calculateLengthStrategy;
             _calculateRideDistanceStrategy = calculateRideDistanceStrategy;
         }
 
