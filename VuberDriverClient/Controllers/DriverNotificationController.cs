@@ -7,6 +7,7 @@ namespace VuberDriverClient.Controllers
     {
         private List<RideToDriver> _ridesRequested = new List<RideToDriver>();
         private bool _rideCancelled = false;
+        private bool _takeCashPayment = false;
 
         public IEnumerable<RideToDriver> RidesRequested
         {
@@ -20,8 +21,12 @@ namespace VuberDriverClient.Controllers
 
         public bool RideCancelled => _rideCancelled;
 
+        public bool CashPayment => _takeCashPayment;
+
         public void AddRideRequested(RideToDriver rideToDriver) => _ridesRequested.Add(rideToDriver);
 
         public void CancelRide() => _rideCancelled = true;
+
+        public void TakeCashPayment() => _takeCashPayment = true;
     }
 }

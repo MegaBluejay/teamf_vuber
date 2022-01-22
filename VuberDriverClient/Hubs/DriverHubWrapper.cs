@@ -18,6 +18,7 @@ namespace VuberDriverClient.Hubs
             _hubConnection = hubConnection ?? throw new ArgumentNullException(nameof(hubConnection));
             _hubConnection.On<RideToDriver>("RideRequested", driverNotificationController.AddRideRequested);
             _hubConnection.On("RideCancelled", driverNotificationController.CancelRide);
+            _hubConnection.On("TakeCashPayment", driverNotificationController.TakeCashPayment);
         }
 
         public void SetRating(Mark rating, Guid rideId) => _hubConnection.InvokeAsync(nameof(SetRating), rating, rideId);

@@ -218,7 +218,7 @@ namespace VuberServer.Controllers
             switch (ride.PaymentType)
             {
                 case PaymentType.Cash:
-                    //послать уведомление водителю, что с клиента нужно взять столько-то денег?? хз
+                    _driverHubContext.Clients.User(ride.Driver.Id.ToString()).TakeCashPayment();
                     break;
                 case PaymentType.PaymentCard:
                     var paymentCard = ride.Client.PaymentCard ?? throw new ArgumentNullException();
