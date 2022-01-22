@@ -12,16 +12,10 @@ namespace VuberServer.Hubs
     {
         protected readonly IVuberController _vuberController;
 
-        protected VuberHub(IVuberController vuberController)
-        {
-            _vuberController = vuberController ?? throw new ArgumentNullException(nameof(vuberController));
-        }
+        protected VuberHub(IVuberController vuberController) => _vuberController = vuberController ?? throw new ArgumentNullException(nameof(vuberController));
 
         public abstract void SetRating(Rating rating, Guid rideId);
 
-        protected Guid GetCurrentId()
-        {
-            return Guid.Parse(Context.User.Identity.Name);
-        }
+        protected Guid GetCurrentId() => Guid.Parse(Context.User.Identity.Name);
     }
 }
