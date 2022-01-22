@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Geolocation;
 using VuberCore.Entities;
 using VuberCore.Dto;
-using VuberCore.Hubs;
 using VuberClientClient.Hubs;
 
 namespace VuberClientClient.Controllers

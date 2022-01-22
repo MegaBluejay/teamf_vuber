@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Geolocation;
+using NetTopologySuite.Geometries;
 using VuberCore.Dto;
 using VuberCore.Entities;
 using VuberCore.Hubs;
@@ -28,6 +28,6 @@ namespace VuberServer.Hubs
 
         public void NotifyClientAboutArrival(Guid rideId) => _vuberController.DriverArrives(rideId);
 
-        public void SendCurrentLocation(Coordinate currentLocation) => _vuberController.UpdateDriverLocation(GetCurrentId(), currentLocation);
+        public void SendCurrentLocation(Point currentLocation) => _vuberController.UpdateDriverLocation(GetCurrentId(), currentLocation);
     }
 }

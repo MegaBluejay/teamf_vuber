@@ -18,7 +18,7 @@ namespace VuberServer.Hubs
 
         public void OrderRide(RideOrder rideOrder)
         {
-            _vuberController.CreateNewRide(Guid.Empty, rideOrder.StartLocation, rideOrder.TargetLocations.ToList(),
+            _vuberController.CreateNewRide(Guid.Empty, rideOrder.Path,
                 rideOrder.PaymentType, rideOrder.RideType);
         }
 
