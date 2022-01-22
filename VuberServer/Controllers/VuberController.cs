@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Geolocation;
@@ -55,6 +56,17 @@ namespace VuberServer.Controllers
         {
             var clientForRide = _vuberDbContext.Clients.FirstOrDefault(client => client.Id == clientId) ??
                                 throw new ArgumentNullException();
+            
+            ICollection<Checkpoint> checkpoints = new List<Checkpoint>();
+            foreach (var coordinate in targetLocations)
+            {
+                checkpoints.Add(new Checkpoint()
+                {
+                    Coordinate = coordinate,
+                    IsPassed = false,
+                });
+            }
+            
             var ride = new Ride()
             {
                 Client = clientForRide,
@@ -63,7 +75,7 @@ namespace VuberServer.Controllers
                 RideType = rideType,
                 Status = RideStatus.Looking,
                 StartLocation = startLocation,
-                TargetLocations = targetLocations,
+                Checkpoints = checkpoints,
                 Created = DateTime.UtcNow,
             };
             _vuberDbContext.Rides.Add(ride);
