@@ -9,7 +9,7 @@ namespace VuberCore.Dto
         public RideToDriver(Ride ride)
         {
             StartLocation = ride.StartLocation;
-            TargetLocations = ride.TargetLocations;
+            Checkpoints = ride.Checkpoints;
             RideType = ride.RideType;
             Status = ride.Status;
             Me = new DriverToThemselves(ride.Driver);
@@ -18,7 +18,7 @@ namespace VuberCore.Dto
         }
 
         public Coordinate StartLocation { get; }
-        public ICollection<Coordinate> TargetLocations { get; }
+        public ICollection<Checkpoint> Checkpoints { get; }
         public RideType RideType { get; }
         public RideStatus Status { get; }
         public DriverToThemselves Me { get; }

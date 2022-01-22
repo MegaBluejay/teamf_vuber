@@ -5,6 +5,6 @@ namespace VuberServer.Strategies.CalculateRideDistanceStrategies
 {
     public interface ICalculateRideDistanceStrategy
     {
-        decimal Calculate(Coordinate startLocation, ICollection<Coordinate> targetLocations);
+        decimal Calculate(Coordinate startLocation, IReadOnlyList<Coordinate> targetLocations);
     }
 }

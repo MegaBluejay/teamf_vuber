@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Geolocation;
@@ -21,7 +22,7 @@ namespace VuberCore.Entities
         [Required]
         public Coordinate StartLocation { get; set; }
         [Required]
-        public ICollection<Coordinate> TargetLocations { get; set; }
+        public List<Checkpoint> Checkpoints { get; set; }
         [Required]
         public DateTime Created { get; set; }
         public DateTime Found { get; set; }
