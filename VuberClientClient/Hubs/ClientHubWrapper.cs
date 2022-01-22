@@ -20,6 +20,8 @@ namespace VuberClientClient.Hubs
             _hubConnection.On<Point>("UpdateDriverLocation", clientNotificationController.UpdateDriverLocation);
         }
 
+        public void Register(NewClient newClient) => _hubConnection.InvokeAsync(nameof(Register), newClient);
+
         public void SetRating(Mark mark, Guid rideId) => _hubConnection.InvokeAsync(nameof(SetRating), mark, rideId);
 
         public void OrderRide(RideOrder rideOrder) => _hubConnection.InvokeAsync(nameof(OrderRide), rideOrder);

@@ -39,7 +39,7 @@ namespace VuberServer.Controllers
             IHubContext<DriverHub, IDriverClient> driverHubContext,
             VuberDbContext vuberDbContext,
             ILogger<VuberController> logger,
-        ICalculateNewRatingStrategy calculateNewRatingStrategy,
+            ICalculateNewRatingStrategy calculateNewRatingStrategy,
             ICalculatePriceStrategy calculatePriceStrategy,
             IFindRidesWithLookingStatusStrategy findRidesWithLookingStatusStrategy,
             ICalculateRideDistanceStrategy calculateRideDistanceStrategy,
@@ -90,6 +90,27 @@ namespace VuberServer.Controllers
                 .RideRequested(new RideToDriver(ride));
             _logger.LogInformation("Ride {0} created", ride.Id);
             return ride;
+        }
+        public void RegisterClient(NewClient newClient)
+        {
+            _vuberDbContext.Clients.Add(new Client
+            {
+                Username = newClient.Username,
+                Name = newClient.Name,
+                PaymentCard = newClient.PaymentCard
+            });
+            _vuberDbContext.SaveChanges();
+        }
+
+        public void RegisterDriver(NewDriver newDriver)
+        {
+            _vuberDbContext.Drivers.Add(new Driver
+            {
+                Username = newDriver.Username,
+                Name = newDriver.Name,
+                MinRideLevel = newDriver.MinRideLevel,
+                MaxRideLevel = newDriver.MaxRideLevel
+            });
         }
 
         public bool DriverTakesRide(Guid driverId, Guid rideId)

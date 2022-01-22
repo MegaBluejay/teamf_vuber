@@ -17,6 +17,14 @@ namespace VuberClientClient.Controllers
         }
 
         [HttpPost]
+        [Route("register")]
+        public IActionResult Register(NewClient newClient)
+        {
+            _hubWrapper.Register(newClient);
+            return Ok();
+        }
+
+        [HttpPost]
         [Route("create-order")]
         public IActionResult OrderRide([FromQuery] RideOrder rideOrder)
         {

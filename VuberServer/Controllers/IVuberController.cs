@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using NetTopologySuite.Geometries;
 using VuberCore.Entities;
+using VuberCore.Dto;
 
 namespace VuberServer.Controllers
 {
@@ -13,11 +14,16 @@ namespace VuberServer.Controllers
             PaymentType paymentType,
             RideType rideType);
 
+        void RegisterClient(NewClient newClient);
+
+        void RegisterDriver(NewDriver newDriver);
+
         bool DriverTakesRide(Guid driverId, Guid rideId);
 
         void DriverArrives(Guid rideId);
 
         void PassCheckpoint(Guid rideId, int checkpointNumber);
+
         void RideCompleted(Guid rideId);
 
         void CancelRide(Guid rideId);
