@@ -10,6 +10,7 @@ using VuberServer.Clients;
 using VuberServer.Data;
 using VuberServer.Strategies.CalculateNewRatingStrategies;
 using VuberServer.Strategies.CalculatePriceStrategies;
+using VuberServer.Strategies.CalculateRideDistanceStrategies;
 using VuberServer.Strategies.FindRidesWithLookingStatusStrategies;
 
 namespace VuberServer.Controllers
@@ -24,6 +25,7 @@ namespace VuberServer.Controllers
         private ICalculateNewRatingStrategy _calculateNewRatingStrategy;
         private ICalculatePriceStrategy _calculatePriceStrategy;
         private IFindRidesWithLookingStatusStrategy _findRidesWithLookingStatusStrategy;
+        private ICalculateRideDistanceStrategy _calculateRideDistanceStrategy;
 
         public VuberController(
             IHubContext<ClientHub, IClientClient> clientHubContext,
@@ -31,7 +33,8 @@ namespace VuberServer.Controllers
             VuberDbContext vuberDbContext,
             ICalculateNewRatingStrategy calculateNewRatingStrategy,
             ICalculatePriceStrategy calculatePriceStrategy,
-            IFindRidesWithLookingStatusStrategy findRidesWithLookingStatusStrategy)
+            IFindRidesWithLookingStatusStrategy findRidesWithLookingStatusStrategy,
+            ICalculateRideDistanceStrategy calculateRideDistanceStrategy)
         {
             _clientHubContext = clientHubContext ?? throw new ArgumentNullException(nameof(clientHubContext));
             _driverHubContext = driverHubContext ?? throw new ArgumentNullException(nameof(driverHubContext));
@@ -40,6 +43,7 @@ namespace VuberServer.Controllers
             _calculateNewRatingStrategy = calculateNewRatingStrategy;
             _calculatePriceStrategy = calculatePriceStrategy;
             _findRidesWithLookingStatusStrategy = findRidesWithLookingStatusStrategy;
+            _calculateRideDistanceStrategy = calculateRideDistanceStrategy;
         }
 
         public Ride CreateNewRide(
@@ -136,21 +140,7 @@ namespace VuberServer.Controllers
 
         private decimal CalculateRideLength(Coordinate startLocation, ICollection<Coordinate> targetLocations)
         {
-            double length = Math.Sqrt(Math.Pow(startLocation.Latitude - targetLocations.First().Latitude, 2)
-                                      + Math.Pow(startLocation.Longitude - targetLocations.First().Longitude, 2));
-            if (targetLocations.Count > 1)
-            {
-                List<Coordinate> listOfTargetLocations = targetLocations.ToList();
-                for (int i = 0; i < listOfTargetLocations.Count - 1; i++)
-                {
-                    Coordinate location1 = listOfTargetLocations[i];
-                    Coordinate location2 = listOfTargetLocations[i + 1];
-                    length += Math.Sqrt(Math.Pow(location1.Latitude - location2.Latitude, 2)
-                                        + Math.Pow(location1.Longitude - location2.Longitude, 2));
-                }
-            }
-
-            return Convert.ToDecimal(length);
+            return _calculateRideDistanceStrategy.Calculate(startLocation, targetLocations);
         }
 
         private decimal CalculatePrice(RideType rideType, Coordinate startLocation, ICollection<Coordinate> targetLocations)
