@@ -11,5 +11,10 @@ namespace VuberServer.Data
         public DbSet<Client> Clients { get; set; }
         public DbSet<Driver> Drivers { get; set; }
         public DbSet<Ride> Rides { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.HasPostgresExtension("postgis");
+        }
     }
 }

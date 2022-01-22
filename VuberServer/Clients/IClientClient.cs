@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Geolocation;
+using NetTopologySuite.Geometries;
 using VuberCore.Dto;
 
 namespace VuberServer.Clients
@@ -8,6 +8,6 @@ namespace VuberServer.Clients
     {
         Task UpdateRide(RideToClient rideToClient);
 
-        Task UpdateDriverLocation(Coordinate coordinate);
+        Task UpdateDriverLocation(Point coordinate);
     }
 }

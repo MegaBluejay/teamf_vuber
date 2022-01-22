@@ -4,8 +4,9 @@ namespace VuberCore.Entities
 {
     public class Rating
     {
+        public int Id { get; set; }
         [Required]
-        public Mark Value { get; set; } 
+        public virtual Mark Value { get; set; }
 
         public uint RidesNumber { get; set; }
     }

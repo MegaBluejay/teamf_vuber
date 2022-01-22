@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Geolocation;
 using Microsoft.AspNetCore.SignalR;
+using NetTopologySuite.Geometries;
 using VuberCore.Entities;
 using VuberServer.Hubs;
 using VuberCore.Dto;
@@ -59,8 +59,7 @@ namespace VuberServer.Controllers
 
         public Ride CreateNewRide(
             Guid clientId,
-            Coordinate startLocation,
-            ICollection<Coordinate> targetLocations,
+            LineString path,
             PaymentType paymentType,
             RideType rideType)
         {
@@ -69,17 +68,16 @@ namespace VuberServer.Controllers
             var ride = new Ride()
             {
                 Client = clientForRide,
-                Cost = CalculatePrice(rideType, startLocation, targetLocations),
+                Cost = CalculatePrice(rideType, path),
                 PaymentType = paymentType,
                 RideType = rideType,
                 Status = RideStatus.Looking,
-                StartLocation = startLocation,
-                TargetLocations = targetLocations,
+                Path = path,
                 Created = DateTime.UtcNow,
             };
             _vuberDbContext.Rides.Add(ride);
             _vuberDbContext.SaveChanges();
-            var drivers = NearbyDrivers(startLocation, rideType);
+            var drivers = NearbyDrivers(path.StartPoint, rideType);
             _driverHubContext.Clients.Clients(drivers.Select(driver => driver.Id.ToString()))
                 .RideRequested(new RideToDriver(ride));
             return ride;
@@ -149,14 +147,14 @@ namespace VuberServer.Controllers
             _driverHubContext.Clients.User(ride.Driver.Id.ToString()).RideCancelled();
         }
 
-        private decimal CalculateRideLength(Coordinate startLocation, ICollection<Coordinate> targetLocations)
+        private decimal CalculateRideLength(LineString path)
         {
-            return _calculateRideDistanceStrategy.Calculate(startLocation, targetLocations);
+            return _calculateRideDistanceStrategy.Calculate(path);
         }
 
-        private decimal CalculatePrice(RideType rideType, Coordinate startLocation, ICollection<Coordinate> targetLocations)
+        private decimal CalculatePrice(RideType rideType, LineString path)
         {
-            var rideLength = CalculateRideLength(startLocation, targetLocations);
+            var rideLength = CalculateRideLength(path);
             CheckWorkloadLevel();
             return _calculatePriceStrategy.CalculatePrice(rideLength, rideType, WorkloadLevel);
         }
@@ -186,7 +184,7 @@ namespace VuberServer.Controllers
             _vuberDbContext.SaveChanges();
         }
 
-        public void UpdateDriverLocation(Guid driverId, Coordinate location)
+        public void UpdateDriverLocation(Guid driverId, Point location)
         {
             var driver = _vuberDbContext.Drivers.FirstOrDefault(driver => driver.Id == driverId);
             driver.LastKnownLocation = location;
@@ -227,7 +225,7 @@ namespace VuberServer.Controllers
             }
         }
 
-        private IEnumerable<Driver> NearbyDrivers(Coordinate coordinate, RideType rideType)
+        private IEnumerable<Driver> NearbyDrivers(Point coordinate, RideType rideType)
         {
             return _findNearbyDriversStrategy.FindNearbyDrivers(_vuberDbContext.Drivers, coordinate, rideType, _calculateLengthStrategy);
         }

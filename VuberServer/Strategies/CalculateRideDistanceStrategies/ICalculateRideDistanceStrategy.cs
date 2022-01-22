@@ -1,10 +1,9 @@
-using System.Collections.Generic;
-using Geolocation;
+using NetTopologySuite.Geometries;
 
 namespace VuberServer.Strategies.CalculateRideDistanceStrategies
 {
     public interface ICalculateRideDistanceStrategy
     {
-        decimal Calculate(Coordinate startLocation, ICollection<Coordinate> targetLocations);
+        decimal Calculate(LineString path);
     }
 }

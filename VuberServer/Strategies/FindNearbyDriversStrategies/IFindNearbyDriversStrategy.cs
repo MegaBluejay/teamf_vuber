@@ -1,5 +1,5 @@
-using Geolocation;
 using System.Collections.Generic;
+using NetTopologySuite.Geometries;
 using VuberCore.Entities;
 using VuberServer.Strategies.CalculateRideDistanceStrategies;
 
@@ -9,7 +9,7 @@ namespace VuberServer.Strategies.FindNearbyDriversStrategies
     {
         IEnumerable<Driver> FindNearbyDrivers(
             IEnumerable<Driver> allDrivers,
-            Coordinate coordinate,
+            Point coordinate,
             RideType rideType,
             ICalculateLengthStrategy calculateLengthStrategy);
     }

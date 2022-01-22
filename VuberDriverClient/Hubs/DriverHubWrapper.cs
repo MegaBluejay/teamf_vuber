@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Geolocation;
 using Microsoft.AspNetCore.SignalR.Client;
+using NetTopologySuite.Geometries;
 using VuberCore.Dto;
 using VuberCore.Entities;
 using VuberCore.Hubs;
@@ -31,7 +31,7 @@ namespace VuberDriverClient.Hubs
 
         public void NotifyClientAboutArrival(Guid rideId) => _hubConnection.InvokeAsync(nameof(NotifyClientAboutArrival), rideId);
 
-        public void SendCurrentLocation(Coordinate currentLocation) => _hubConnection.InvokeAsync(nameof(SendCurrentLocation), currentLocation);
+        public void SendCurrentLocation(Point currentLocation) => _hubConnection.InvokeAsync(nameof(SendCurrentLocation), currentLocation);
 
         public RideToDriver SeeOrderDetails(Guid rideId) => _hubConnection.InvokeAsync<RideToDriver>(nameof(SeeOrderDetails), rideId).Result;
     }

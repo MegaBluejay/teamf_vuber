@@ -1,4 +1,4 @@
-using Geolocation;
+using NetTopologySuite.Geometries;
 using VuberCore.Dto;
 
 namespace VuberClientClient.Controllers
@@ -6,12 +6,12 @@ namespace VuberClientClient.Controllers
     public class ClientNotificationController : IClientNotificationController
     {
         private bool _driverLocationUpdated = false;
-        private Coordinate _driverLocation;
+        private Point _driverLocation;
 
         private bool _rideUpdated = false;
         private RideToClient _ride;
 
-        public bool DriverLocation(out Coordinate driverLocation)
+        public bool DriverLocation(out Point driverLocation)
         {
             driverLocation = _driverLocation;
             var updated = _driverLocationUpdated;
@@ -27,7 +27,7 @@ namespace VuberClientClient.Controllers
             return updated;
         }
 
-        public void UpdateDriverLocation(Coordinate driverLocation)
+        public void UpdateDriverLocation(Point driverLocation)
         {
             _driverLocationUpdated = true;
             _driverLocation = driverLocation;
