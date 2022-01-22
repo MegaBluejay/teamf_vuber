@@ -50,7 +50,7 @@ namespace VuberServer.Controllers
         public Ride CreateNewRide(
             Guid clientId,
             Coordinate startLocation,
-            ICollection<Coordinate> targetLocations,
+            List<Coordinate> targetLocations,
             PaymentType paymentType,
             RideType rideType)
         {
@@ -148,6 +148,14 @@ namespace VuberServer.Controllers
                 case RideStatus.InProgress:
                     ride.Status = RideStatus.Cancelled;
                     //снятие денег с клиента за часть поездки??
+                    List<Coordinate> coordinates = new List<Coordinate>();
+                    foreach (var checkpoint in ride.Checkpoints)
+                    {
+                        if (checkpoint.IsPassed)
+                            coordinates.Add(checkpoint.Coordinate);
+                    }
+
+                    decimal price = _calculateRideDistanceStrategy.Calculate(ride.StartLocation, coordinates);
                     break;
                 default:
                     throw new Exception("Ride cannot be cancelled");
@@ -157,12 +165,12 @@ namespace VuberServer.Controllers
             _driverHubContext.Clients.User(ride.Driver.Id.ToString()).RideCancelled();
         }
 
-        private decimal CalculateRideLength(Coordinate startLocation, ICollection<Coordinate> targetLocations)
+        private decimal CalculateRideLength(Coordinate startLocation, List<Coordinate> targetLocations)
         {
             return _calculateRideDistanceStrategy.Calculate(startLocation, targetLocations);
         }
 
-        private decimal CalculatePrice(RideType rideType, Coordinate startLocation, ICollection<Coordinate> targetLocations)
+        private decimal CalculatePrice(RideType rideType, Coordinate startLocation, List<Coordinate> targetLocations)
         {
             var rideLength = CalculateRideLength(startLocation, targetLocations);
             CheckWorkloadLevel();
