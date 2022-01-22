@@ -10,5 +10,6 @@ namespace VuberDriverClient.Controllers
         bool CashPayment { get; }
         void AddRideRequested(RideToDriver rideToDriver);
         void CancelRide();
+        void TakeCashPayment();
     }
 }

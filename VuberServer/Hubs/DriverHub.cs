@@ -29,7 +29,5 @@ namespace VuberServer.Hubs
         public void NotifyClientAboutArrival(Guid rideId) => _vuberController.DriverArrives(rideId);
 
         public void SendCurrentLocation(Coordinate currentLocation) => _vuberController.UpdateDriverLocation(GetCurrentId(), currentLocation);
-
-        public RideToDriver SeeOrderDetails(Guid rideId) => _vuberController.SeeOrderDetails(rideId);
     }
 }
