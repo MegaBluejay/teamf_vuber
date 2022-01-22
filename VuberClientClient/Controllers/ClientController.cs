@@ -20,7 +20,7 @@ namespace VuberClientClient.Controllers
         }
 
         [HttpPost]
-        [Route("createOrder")]
+        [Route("create-order")]
         public IActionResult OrderRide([FromQuery] RideOrder rideOrder)
         {
             _hubWrapper.OrderRide(rideOrder);
@@ -28,7 +28,7 @@ namespace VuberClientClient.Controllers
         }
 
         [HttpPost]
-        [Route("cancelOrder")]
+        [Route("cancel-order")]
         public IActionResult CancelOrder()
         {
             _hubWrapper.CancelOrder();
@@ -36,7 +36,7 @@ namespace VuberClientClient.Controllers
         }
 
         [HttpPost]
-        [Route("addPaymentCard")]
+        [Route("add-payment-card")]
         public IActionResult AddPaymentCard([FromQuery] string cardData)
         {
             _hubWrapper.AddPaymentCard(cardData);
@@ -44,14 +44,14 @@ namespace VuberClientClient.Controllers
         }
 
         [HttpGet]
-        [Route("seeRides")]
+        [Route("see-rides")]
         public IActionResult SeeRides()
         {
             return Ok(_hubWrapper.SeeRides());
         }
 
         [HttpGet]
-        [Route("setRating")]
+        [Route("set-rating")]
         public IActionResult SetRating([FromQuery] Mark mark, [FromQuery] Guid driverId)
         {
             _hubWrapper.SetRating(mark, driverId);
@@ -59,7 +59,7 @@ namespace VuberClientClient.Controllers
         }
 
         [HttpGet]
-        [Route("getDriverRating")]
+        [Route("get-driver-rating")]
         public IActionResult GetDriverRating([FromQuery] Guid driverId)
         {
             return Ok(_hubWrapper.GetDriverRating(driverId));

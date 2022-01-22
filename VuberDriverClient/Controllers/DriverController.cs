@@ -17,14 +17,14 @@ namespace VuberDriverClient.Controllers
         }
 
         [HttpGet]
-        [Route("seeRides")]
+        [Route("see-rides")]
         public IActionResult SeeRides()
         {
             return Ok(_hubWrapper.SeeRides());
         }
 
         [HttpPost]
-        [Route("setRating")]
+        [Route("set-rating")]
         public IActionResult SetRating([FromQuery] Mark mark, [FromQuery] Guid rideId)
         {
             _hubWrapper.SetRating(mark, rideId);
@@ -32,14 +32,14 @@ namespace VuberDriverClient.Controllers
         }
         
         [HttpGet]
-        [Route("seeOrderDetails")]
+        [Route("see-order-details")]
         public IActionResult SeeOrderDetails(Guid rideId)
         {
             return Ok(_hubWrapper.SeeOrderDetails(rideId));
         }
 
         [HttpPost]
-        [Route("acceptOrder")]
+        [Route("accept-order")]
         public IActionResult AcceptOrder(Guid rideId)
         {
             _hubWrapper.AcceptOrder(rideId);
@@ -47,7 +47,7 @@ namespace VuberDriverClient.Controllers
         }
 
         [HttpPost]
-        [Route("rejectOrder")]
+        [Route("reject-order")]
         public IActionResult RejectOrder(Guid rideId)
         {
             _hubWrapper.RejectOrder(rideId);
