@@ -17,7 +17,7 @@ namespace VuberCore.Entities
         [Required]
         public RideType RideType { get; set; }
         [Required]
-        public List<Checkpoint> Checkpoints { get; set; }
+        public virtual List<Checkpoint> Checkpoints { get; set; }
         [Required]
         public RideStatus Status { get; set; }
         [Required]
