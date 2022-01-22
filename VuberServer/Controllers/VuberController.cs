@@ -57,7 +57,7 @@ namespace VuberServer.Controllers
             var clientForRide = _vuberDbContext.Clients.FirstOrDefault(client => client.Id == clientId) ??
                                 throw new ArgumentNullException();
             
-            ICollection<Checkpoint> checkpoints = new List<Checkpoint>();
+            List<Checkpoint> checkpoints = new List<Checkpoint>();
             foreach (var coordinate in targetLocations)
             {
                 checkpoints.Add(new Checkpoint()
@@ -124,6 +124,13 @@ namespace VuberServer.Controllers
             ride.Status = RideStatus.Complete;
             ride.Finished = DateTime.UtcNow;
             _vuberDbContext.Rides.Update(ride);
+        }
+
+        public void PassCheckpoint(Guid rideId, int checkpointNumber)
+        {
+            var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind => rideToFind.Id == rideId) ??
+                       throw new ArgumentNullException();
+            ride.Checkpoints[checkpointNumber].IsPassed = true;
         }
 
         public void CancelRide(Guid rideId)
