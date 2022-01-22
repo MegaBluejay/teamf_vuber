@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Geolocation;
 using Microsoft.AspNetCore.SignalR.Client;
-using NetTopologySuite.Geometries;
 using VuberClientClient.Controllers;
 using VuberCore.Dto;
 using VuberCore.Entities;
@@ -17,8 +17,10 @@ namespace VuberClientClient.Hubs
         {
             _hubConnection = hubConnection ?? throw new ArgumentNullException(nameof(hubConnection));
             _hubConnection.On<RideToClient>("UpdateRide", clientNotificationController.UpdateRide);
-            _hubConnection.On<Point>("UpdateDriverLocation", clientNotificationController.UpdateDriverLocation);
+            _hubConnection.On<Coordinate>("UpdateDriverLocation", clientNotificationController.UpdateDriverLocation);
         }
+
+        public void Register(NewClient newClient) => _hubConnection.InvokeAsync(nameof(Register), newClient);
 
         public void SetRating(Mark mark, Guid rideId) => _hubConnection.InvokeAsync(nameof(SetRating), mark, rideId);
 

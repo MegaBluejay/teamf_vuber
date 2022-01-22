@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Geolocation;
 using VuberCore.Entities;
 using VuberCore.Dto;
+using VuberCore.Hubs;
 using VuberClientClient.Hubs;
 
 namespace VuberClientClient.Controllers
@@ -14,6 +17,14 @@ namespace VuberClientClient.Controllers
         public ClientController(ClientHubWrapper hubWrapper)
         {
             _hubWrapper = hubWrapper;
+        }
+
+        [HttpPost]
+        [Route("register")]
+        public IActionResult Register(NewClient newClient)
+        {
+            _hubWrapper.Register(newClient);
+            return Ok();
         }
 
         [HttpPost]

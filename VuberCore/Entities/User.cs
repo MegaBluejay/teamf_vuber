@@ -8,8 +8,8 @@ namespace VuberCore.Entities
         [Required]
         public string Username { get; set; }
         public string Name { get; set; }
-        public virtual Rating Rating { get; set; }
+        public Rating Rating { get; set; } = new Rating();
 
-        public virtual List<Ride> Rides { get; set; }
+        public List<Ride> Rides { get; set; } = new List<Ride>();
     }
 }

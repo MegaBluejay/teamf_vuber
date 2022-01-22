@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NetTopologySuite.Geometries;
+using Geolocation;
 using VuberCore.Dto;
 using VuberCore.Entities;
 using VuberCore.Hubs;
@@ -15,7 +15,7 @@ namespace VuberServer.Hubs
         public DriverHub(IVuberController vuberController)
             : base(vuberController) { }
 
-
+        public void Register(NewDriver newDriver) => _vuberController.RegisterDriver(newDriver);
         public IEnumerable<RideToDriver> SeeRides() => _vuberController.SeeRides(GetCurrentId()).Select(ride => new RideToDriver(ride));
 
         public override void SetRating(Mark mark, Guid rideId) => _vuberController.SetRating(mark, rideId, ride => ride.Client);
@@ -28,6 +28,6 @@ namespace VuberServer.Hubs
 
         public void NotifyClientAboutArrival(Guid rideId) => _vuberController.DriverArrives(rideId);
 
-        public void SendCurrentLocation(Point currentLocation) => _vuberController.UpdateDriverLocation(GetCurrentId(), currentLocation);
+        public void SendCurrentLocation(Coordinate currentLocation) => _vuberController.UpdateDriverLocation(GetCurrentId(), currentLocation);
     }
 }
