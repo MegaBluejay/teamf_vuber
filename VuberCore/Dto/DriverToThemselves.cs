@@ -9,6 +9,6 @@ namespace VuberCore.Dto
             Name = driver.Name;
         }
 
-        public string Name { get; set; }
+        public string Name { get; }
     }
 }
