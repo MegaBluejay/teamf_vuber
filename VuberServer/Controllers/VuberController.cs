@@ -13,6 +13,8 @@ using VuberServer.Strategies.CalculatePriceStrategies;
 using VuberServer.Strategies.CheckWorkloadLevelStrategies;
 using VuberServer.Strategies.CalculateRideDistanceStrategies;
 using VuberServer.Strategies.FindRidesWithLookingStatusStrategies;
+using VuberServer.Strategies.FindNearbyDriversStrategies;
+
 
 namespace VuberServer.Controllers
 {
@@ -28,6 +30,7 @@ namespace VuberServer.Controllers
         private IFindRidesWithLookingStatusStrategy _findRidesWithLookingStatusStrategy;
         private ICalculateRideDistanceStrategy _calculateRideDistanceStrategy;
         private ICalculateLengthStrategy _calculateLengthStrategy;
+        private IFindNearbyDriversStrategy _findNearbyDriversStrategy;
 
         public VuberController(
             IHubContext<ClientHub, IClientClient> clientHubContext,
@@ -38,7 +41,8 @@ namespace VuberServer.Controllers
             IFindRidesWithLookingStatusStrategy findRidesWithLookingStatusStrategy,
             ICalculateRideDistanceStrategy calculateRideDistanceStrategy,
             ICheckWorkloadLevelStrategy checkWorkloadLevelStrategy,
-            ICalculateLengthStrategy calculateLengthStrategy)
+            ICalculateLengthStrategy calculateLengthStrategy,
+            IFindNearbyDriversStrategy findNearbyDriversStrategy)
         {
             _clientHubContext = clientHubContext ?? throw new ArgumentNullException(nameof(clientHubContext));
             _driverHubContext = driverHubContext ?? throw new ArgumentNullException(nameof(driverHubContext));
@@ -50,6 +54,7 @@ namespace VuberServer.Controllers
             _checkWorkloadLevelStrategy = checkWorkloadLevelStrategy;
             _calculateLengthStrategy = calculateLengthStrategy;
             _calculateRideDistanceStrategy = calculateRideDistanceStrategy;
+            _findNearbyDriversStrategy = findNearbyDriversStrategy;
         }
 
         public Ride CreateNewRide(
@@ -224,9 +229,7 @@ namespace VuberServer.Controllers
 
         private IEnumerable<Driver> NearbyDrivers(Coordinate coordinate, RideType rideType)
         {
-            return _vuberDbContext.Drivers.Where(driver =>
-                GeoCalculator.GetDistance(driver.LastKnownLocation, coordinate, 1, DistanceUnit.Meters) < 1000 &&
-                driver.MinRideLevel <= rideType && rideType <= driver.MaxRideLevel);
+            return _findNearbyDriversStrategy.FindNearbyDrivers(_vuberDbContext.Drivers, coordinate, rideType, _calculateLengthStrategy);
         }
     }
 }

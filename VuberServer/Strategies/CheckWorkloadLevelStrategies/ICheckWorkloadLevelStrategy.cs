@@ -4,6 +4,6 @@ namespace VuberServer.Strategies.CheckWorkloadLevelStrategies
 {
     public interface ICheckWorkloadLevelStrategy
     {
-        public WorkloadLevel CheckWorkloadLevel(decimal ridesWithLookingStatusCount);
+        WorkloadLevel CheckWorkloadLevel(decimal ridesWithLookingStatusCount);
     }
 }
