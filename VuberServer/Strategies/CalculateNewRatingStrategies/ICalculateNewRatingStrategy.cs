@@ -4,6 +4,6 @@ namespace VuberServer.Strategies.CalculateNewRatingStrategies
 {
     public interface ICalculateNewRatingStrategy
     {
-        void CalculateNewRating(Rating driverRating, Rating lastRideRating);
+        void CalculateNewRating(Rating driverRating, Mark lastRideMark);
     }
 }

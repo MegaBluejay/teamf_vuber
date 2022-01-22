@@ -5,6 +5,6 @@ namespace VuberCore.Hubs
 {
     public interface IVuberHub
     {
-        void SetRating(Rating rating, Guid rideId);
+        void SetRating(Mark mark, Guid rideId);
     }
 }

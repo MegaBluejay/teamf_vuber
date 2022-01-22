@@ -14,7 +14,7 @@ namespace VuberServer.Hubs
 
         protected VuberHub(IVuberController vuberController) => _vuberController = vuberController ?? throw new ArgumentNullException(nameof(vuberController));
 
-        public abstract void SetRating(Rating rating, Guid rideId);
+        public abstract void SetRating(Mark mark, Guid rideId);
 
         protected Guid GetCurrentId() => Guid.Parse(Context.User.Identity.Name);
     }
