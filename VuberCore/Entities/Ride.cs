@@ -22,7 +22,7 @@ namespace VuberCore.Entities
         [Required]
         public Coordinate StartLocation { get; set; }
         [Required]
-        public ICollection<Checkpoint> Checkpoints { get; set; }
+        public List<Checkpoint> Checkpoints { get; set; }
         [Required]
         public DateTime Created { get; set; }
         public DateTime Found { get; set; }
