@@ -22,9 +22,7 @@ namespace VuberServer.Hubs
 
         public bool AcceptOrder(Guid rideId) => _vuberController.DriverTakesRide(GetCurrentId(), rideId);
 
-        public void RejectOrder(Guid rideId)
-        {
-        }
+        public void RejectOrder(Guid rideId) { }
 
         public void NotifyClientAboutArrival(Guid rideId) => _vuberController.DriverArrives(rideId);
 

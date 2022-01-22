@@ -22,6 +22,8 @@ namespace VuberServer.Controllers
 
         void DriverArrives(Guid rideId);
 
+        void PassCheckpoint(Guid rideId, int checkpointNumber);
+
         void RideCompleted(Guid rideId);
 
         void CancelRide(Guid rideId);
