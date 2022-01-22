@@ -8,5 +8,7 @@ namespace VuberServer.Clients
         Task RideRequested(RideToDriver ride);
 
         Task RideCancelled();
+
+        Task TakeCashPayment();
     }
 }
