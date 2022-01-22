@@ -170,6 +170,13 @@ namespace VuberServer.Controllers
             return rides;
         }
 
+        public Rating SeeRating(Guid rideId, Func<Ride, User> userGetter)
+        {
+            var ride = _vuberDbContext.Rides.FirstOrDefault(ride => ride.Id == rideId);
+            var user = userGetter.Invoke(ride);
+            return user.Rating;
+        }
+
         public void SetRating(Rating rating, Guid rideId, Func<Ride, User> userGetter)
         {
             var ride = _vuberDbContext.Rides.FirstOrDefault(ride => ride.Id == rideId);
