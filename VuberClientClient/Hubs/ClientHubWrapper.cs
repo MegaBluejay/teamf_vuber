@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Geolocation;
 using Microsoft.AspNetCore.SignalR.Client;
+using VuberClientClient.Controllers;
 using VuberCore.Dto;
 using VuberCore.Entities;
 using VuberCore.Hubs;
@@ -11,7 +13,12 @@ namespace VuberClientClient.Hubs
     {
         private readonly HubConnection _hubConnection;
 
-        public ClientHubWrapper(HubConnection hubConnection) => _hubConnection = hubConnection ?? throw new ArgumentNullException(nameof(hubConnection));
+        public ClientHubWrapper(HubConnection hubConnection, IClientNotificationController clientNotificationController)
+        {
+            _hubConnection = hubConnection ?? throw new ArgumentNullException(nameof(hubConnection));
+            _hubConnection.On<RideToClient>("UpdateRide", clientNotificationController.UpdateRide);
+            _hubConnection.On<Coordinate>("UpdateDriverLocation", clientNotificationController.UpdateDriverLocation);
+        }
 
         public void SetRating(Rating rating, Guid rideId) => _hubConnection.InvokeAsync(nameof(SetRating), rating, rideId);
 
