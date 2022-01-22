@@ -61,7 +61,7 @@ namespace VuberServer.Controllers
             _calculateRideDistanceStrategy = calculateRideDistanceStrategy;
             _findNearbyDriversStrategy = findNearbyDriversStrategy;
         }
-
+        
         public Ride CreateNewRide(
             Guid clientId,
             Coordinate startLocation,
@@ -138,7 +138,12 @@ namespace VuberServer.Controllers
         {
             var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind => rideToFind.Id == rideId) ??
                        throw new ArgumentNullException();
-            WithdrawalForRide(ride);
+            List<Coordinate> coordinates = new List<Coordinate>();
+            foreach (var checkpoint in ride.Checkpoints)
+            {
+                coordinates.Add(checkpoint.Coordinate);
+            }
+            WithdrawalForRide(ride, CalculatePrice(ride.RideType, ride.StartLocation, coordinates));
             ride.Status = RideStatus.Complete;
             ride.Finished = DateTime.UtcNow;
             _vuberDbContext.Rides.Update(ride);
@@ -166,17 +171,16 @@ namespace VuberServer.Controllers
                     break;
                 case RideStatus.InProgress:
                     ride.Status = RideStatus.Cancelled;
-                    //снятие денег с клиента за часть поездки??
-//                     List<Coordinate> coordinates = new List<Coordinate>();
-//                     foreach (var checkpoint in ride.Checkpoints)
-//                     {
-//                         if (checkpoint.IsPassed)
-//                             coordinates.Add(checkpoint.Coordinate);
-//                     }
+                     List<Coordinate> coordinates = new List<Coordinate>();
+                     foreach (var checkpoint in ride.Checkpoints)
+                     {
+                         if (checkpoint.IsPassed)
+                             coordinates.Add(checkpoint.Coordinate);
+                     }
 
-//                     decimal distanceTravelled = _calculateRideDistanceStrategy.Calculate(ride.StartLocation, coordinates);
-
-                    WithdrawalForRide(ride);
+                     decimal distanceTravelled = _calculateRideDistanceStrategy.Calculate(ride.StartLocation, coordinates);
+                    decimal money = _calculatePriceStrategy.CalculatePrice(distanceTravelled, ride.RideType, WorkloadLevel);
+                    WithdrawalForRide(ride, money);
                     break;
                 default:
                     throw new Exception("Ride cannot be cancelled");
@@ -264,7 +268,7 @@ namespace VuberServer.Controllers
                 .Where(ride => ride.Status == RideStatus.Looking).ToList().Count);
         }
 
-        private void WithdrawalForRide(Ride ride)
+        private void WithdrawalForRide(Ride ride, decimal money)
         {
             switch (ride.PaymentType)
             {
