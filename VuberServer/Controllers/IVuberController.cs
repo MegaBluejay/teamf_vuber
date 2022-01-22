@@ -10,7 +10,7 @@ namespace VuberServer.Controllers
         Ride CreateNewRide(
             Guid clientId,
             Coordinate startLocation,
-            ICollection<Coordinate> targetLocations,
+            List<Coordinate> targetLocations,
             PaymentType paymentType,
             RideType rideType);
 
