@@ -1,12 +1,13 @@
 using System;
 using Microsoft.AspNetCore.SignalR;
 using VuberCore.Entities;
+using VuberCore.Hubs;
 using VuberServer.Clients;
 using VuberServer.Controllers;
 
 namespace VuberServer.Hubs
 {
-    public abstract class VuberHub<TClient> : Hub<TClient>
+    public abstract class VuberHub<TClient> : Hub<TClient>, IVuberHub
         where TClient : class, IVuberClient
     {
         protected readonly IVuberController _vuberController;

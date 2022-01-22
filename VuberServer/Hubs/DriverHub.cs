@@ -4,12 +4,13 @@ using System.Linq;
 using Geolocation;
 using VuberCore.Dto;
 using VuberCore.Entities;
+using VuberCore.Hubs;
 using VuberServer.Clients;
 using VuberServer.Controllers;
 
 namespace VuberServer.Hubs
 {
-    public class DriverHub : VuberHub<IDriverClient>
+    public class DriverHub : VuberHub<IDriverClient>, IDriverHub
     {
         public DriverHub(IVuberController vuberController)
             : base(vuberController) { }
