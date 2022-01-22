@@ -10,14 +10,15 @@ namespace VuberServer.Controllers
         Ride CreateNewRide(
             Guid clientId,
             Coordinate startLocation,
-            ICollection<Coordinate> targetLocations,
+            List<Coordinate> targetLocations,
             PaymentType paymentType,
             RideType rideType);
 
         bool DriverTakesRide(Guid driverId, Guid rideId);
 
         void DriverArrives(Guid rideId);
-
+        
+        void PassCheckpoint(Guid rideId, int checkpointNumber);
         void RideCompleted(Guid rideId);
 
         void CancelRide(Guid rideId);

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Geolocation;
@@ -64,12 +65,23 @@ namespace VuberServer.Controllers
         public Ride CreateNewRide(
             Guid clientId,
             Coordinate startLocation,
-            ICollection<Coordinate> targetLocations,
+            List<Coordinate> targetLocations,
             PaymentType paymentType,
             RideType rideType)
         {
             var clientForRide = _vuberDbContext.Clients.FirstOrDefault(client => client.Id == clientId) ??
                                 throw new ArgumentNullException();
+            
+            List<Checkpoint> checkpoints = new List<Checkpoint>();
+            foreach (var coordinate in targetLocations)
+            {
+                checkpoints.Add(new Checkpoint()
+                {
+                    Coordinate = coordinate,
+                    IsPassed = false,
+                });
+            }
+            
             var ride = new Ride()
             {
                 Client = clientForRide,
@@ -78,7 +90,7 @@ namespace VuberServer.Controllers
                 RideType = rideType,
                 Status = RideStatus.Looking,
                 StartLocation = startLocation,
-                TargetLocations = targetLocations,
+                Checkpoints = checkpoints,
                 Created = DateTime.UtcNow,
             };
             _vuberDbContext.Rides.Add(ride);
@@ -133,6 +145,13 @@ namespace VuberServer.Controllers
             _logger.LogInformation("Ride {0} completed", ride.Id);
         }
 
+        public void PassCheckpoint(Guid rideId, int checkpointNumber)
+        {
+            var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind => rideToFind.Id == rideId) ??
+                       throw new ArgumentNullException();
+            ride.Checkpoints[checkpointNumber].IsPassed = true;
+        }
+
         public void CancelRide(Guid rideId)
         {
             var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind => rideToFind.Id == rideId) ??
@@ -147,6 +166,16 @@ namespace VuberServer.Controllers
                     break;
                 case RideStatus.InProgress:
                     ride.Status = RideStatus.Cancelled;
+                    //снятие денег с клиента за часть поездки??
+//                     List<Coordinate> coordinates = new List<Coordinate>();
+//                     foreach (var checkpoint in ride.Checkpoints)
+//                     {
+//                         if (checkpoint.IsPassed)
+//                             coordinates.Add(checkpoint.Coordinate);
+//                     }
+
+//                     decimal distanceTravelled = _calculateRideDistanceStrategy.Calculate(ride.StartLocation, coordinates);
+
                     WithdrawalForRide(ride);
                     break;
                 default:
@@ -158,12 +187,12 @@ namespace VuberServer.Controllers
             _logger.LogInformation("Ride {0} canceled", ride.Id);
         }
 
-        private decimal CalculateRideLength(Coordinate startLocation, ICollection<Coordinate> targetLocations)
+        private decimal CalculateRideLength(Coordinate startLocation, List<Coordinate> targetLocations)
         {
             return _calculateRideDistanceStrategy.Calculate(startLocation, targetLocations);
         }
 
-        private decimal CalculatePrice(RideType rideType, Coordinate startLocation, ICollection<Coordinate> targetLocations)
+        private decimal CalculatePrice(RideType rideType, Coordinate startLocation, List<Coordinate> targetLocations)
         {
             var rideLength = CalculateRideLength(startLocation, targetLocations);
             CheckWorkloadLevel();

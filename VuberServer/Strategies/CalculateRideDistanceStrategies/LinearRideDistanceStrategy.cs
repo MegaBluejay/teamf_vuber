@@ -7,7 +7,7 @@ namespace VuberServer.Strategies.CalculateRideDistanceStrategies
 {
     public class LinearRideDistanceStrategy : ICalculateRideDistanceStrategy
     {
-        public decimal Calculate(Coordinate startLocation, ICollection<Coordinate> targetLocations)
+        public decimal Calculate(Coordinate startLocation, List<Coordinate> targetLocations)
         {
             double length = Math.Sqrt(Math.Pow(startLocation.Latitude - targetLocations.First().Latitude, 2)
                                       + Math.Pow(startLocation.Longitude - targetLocations.First().Longitude, 2));
