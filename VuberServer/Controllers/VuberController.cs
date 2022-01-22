@@ -155,7 +155,7 @@ namespace VuberServer.Controllers
                             coordinates.Add(checkpoint.Coordinate);
                     }
 
-                    decimal price = _calculateRideDistanceStrategy.Calculate(ride.StartLocation, coordinates);
+                    decimal distanceTravelled = _calculateRideDistanceStrategy.Calculate(ride.StartLocation, coordinates);
                     break;
                 default:
                     throw new Exception("Ride cannot be cancelled");
