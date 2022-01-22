@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VuberCore", "VuberCore\Vube
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VuberServer", "VuberServer\VuberServer.csproj", "{8AF673C7-8166-44DE-9B30-899B67F57FF2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VuberClientClient", "VuberClientClient\VuberClientClient.csproj", "{97BD50E1-739E-4C14-8635-CBB87AA0A945}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VuberDriverClient", "VuberDriverClient\VuberDriverClient.csproj", "{AE3D7CAB-B2F5-4AB0-960E-CA7E094724FF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VuberDriverClient", "VuberDriverClient\VuberDriverClient.csproj", "{2125CA05-FA16-45BB-A230-B45E92EA4221}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VuberClientClient", "VuberClientClient\VuberClientClient.csproj", "{4A979F80-A126-4D32-B083-3146783ECDC7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,14 +25,14 @@ Global
 		{8AF673C7-8166-44DE-9B30-899B67F57FF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AF673C7-8166-44DE-9B30-899B67F57FF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AF673C7-8166-44DE-9B30-899B67F57FF2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{97BD50E1-739E-4C14-8635-CBB87AA0A945}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{97BD50E1-739E-4C14-8635-CBB87AA0A945}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{97BD50E1-739E-4C14-8635-CBB87AA0A945}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{97BD50E1-739E-4C14-8635-CBB87AA0A945}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2125CA05-FA16-45BB-A230-B45E92EA4221}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2125CA05-FA16-45BB-A230-B45E92EA4221}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2125CA05-FA16-45BB-A230-B45E92EA4221}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2125CA05-FA16-45BB-A230-B45E92EA4221}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE3D7CAB-B2F5-4AB0-960E-CA7E094724FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE3D7CAB-B2F5-4AB0-960E-CA7E094724FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE3D7CAB-B2F5-4AB0-960E-CA7E094724FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE3D7CAB-B2F5-4AB0-960E-CA7E094724FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A979F80-A126-4D32-B083-3146783ECDC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A979F80-A126-4D32-B083-3146783ECDC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A979F80-A126-4D32-B083-3146783ECDC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A979F80-A126-4D32-B083-3146783ECDC7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
