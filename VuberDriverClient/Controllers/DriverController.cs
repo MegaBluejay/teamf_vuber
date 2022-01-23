@@ -1,7 +1,9 @@
 using System;
 using Microsoft.AspNetCore.Mvc;
 using VuberCore.Entities;
+using VuberCore.Dto;
 using VuberDriverClient.Hubs;
+using NetTopologySuite.Geometries;
 
 namespace VuberDriverClient.Controllers
 {
@@ -14,6 +16,14 @@ namespace VuberDriverClient.Controllers
         public DriverController(DriverHubWrapper hubWrapper)
         {
             _hubWrapper = hubWrapper;
+        }
+
+        [HttpPost]
+        [Route("register")]
+        public IActionResult Register(NewDriver newDriver)
+        {
+            _hubWrapper.Register(newDriver);
+            return Ok();
         }
 
         [HttpGet]
@@ -30,7 +40,7 @@ namespace VuberDriverClient.Controllers
             _hubWrapper.SetRating(mark, rideId);
             return Ok();
         }
-        
+
         [HttpGet]
         [Route("see-order-details")]
         public IActionResult SeeOrderDetails(Guid rideId)
@@ -51,6 +61,14 @@ namespace VuberDriverClient.Controllers
         public IActionResult RejectOrder(Guid rideId)
         {
             _hubWrapper.RejectOrder(rideId);
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("send-current-location")]
+        public IActionResult SendCurrentLocation(Point point)
+        {
+            _hubWrapper.SendCurrentLocation(point);
             return Ok();
         }
     }

@@ -21,6 +21,7 @@ namespace VuberDriverClient.Hubs
             _hubConnection.On("TakeCashPayment", driverNotificationController.TakeCashPayment);
         }
 
+        public void Register(NewDriver newDriver) => _hubConnection.InvokeAsync(nameof(Register), newDriver);
         public void SetRating(Mark rating, Guid rideId) => _hubConnection.InvokeAsync(nameof(SetRating), rating, rideId);
 
         public IEnumerable<RideToDriver> SeeRides() => _hubConnection.InvokeAsync<IEnumerable<RideToDriver>>(nameof(SeeRides)).Result;

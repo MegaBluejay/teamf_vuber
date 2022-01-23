@@ -18,13 +18,13 @@ namespace VuberServer.Hubs
 
         public IEnumerable<RideToDriver> SeeRides() => _vuberController.SeeRides(GetCurrentUsername()).Select(ride => new RideToDriver(ride));
 
+        public void Register(NewDriver newDriver) => _vuberController.RegisterDriver(newDriver);
+
         public override void SetRating(Mark mark, Guid rideId) => _vuberController.SetRating(mark, rideId, ride => ride.Client);
 
         public bool AcceptOrder(Guid rideId) => _vuberController.DriverTakesRide(GetCurrentUsername(), rideId);
 
-        public void RejectOrder(Guid rideId)
-        {
-        }
+        public void RejectOrder(Guid rideId) { }
 
         public void NotifyClientAboutArrival(Guid rideId) => _vuberController.DriverArrives(rideId);
 

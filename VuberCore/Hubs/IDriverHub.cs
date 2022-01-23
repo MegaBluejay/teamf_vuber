@@ -7,6 +7,7 @@ namespace VuberCore.Hubs
 {
     public interface IDriverHub : IVuberHub
     {
+        void Register(NewDriver newDriver);
         IEnumerable<RideToDriver> SeeRides();
         bool AcceptOrder(Guid rideId);
         void RejectOrder(Guid rideId);
