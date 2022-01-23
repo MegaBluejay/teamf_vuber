@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -33,8 +34,10 @@ namespace VuberClientClient
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "VuberClientClient", Version = "v1" });
             });
+            var creds = Convert.ToBase64String(System.Text.Encoding.GetEncoding("ISO-8859-1")
+                .GetBytes("SomeUserName" + ":" + "__NOPASS__"));
             var hubConnection = new HubConnectionBuilder()
-                .WithUrl("localhost/client")
+                .WithUrl("http://localhost/client", options => options.Headers["Authorization"] = $"Basic {creds}")
                 .WithAutomaticReconnect()
                 .Build();
             var clientNotificationController = new ClientNotificationController();
