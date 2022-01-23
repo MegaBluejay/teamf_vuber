@@ -19,8 +19,6 @@ namespace VuberServer.Controllers
 
         void RegisterDriver(NewDriver newDriver);
 
-        bool DriverTakesRide(Guid driverId, Guid rideId);
-
         void DriverArrives(Guid rideId);
 
         void PassCheckpoint(Guid rideId, int checkpointNumber);

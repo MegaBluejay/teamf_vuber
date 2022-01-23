@@ -118,13 +118,7 @@ namespace VuberServer.Controllers
                                    throw new ArgumentNullException();
             var rideToTake = _vuberDbContext.Rides.FirstOrDefault(ride => ride.Id == rideId) ??
                              throw new ArgumentNullException();
-            if (rideToTake.Status != RideStatus.Looking)
-            {
-                return false;
-            }
-            rideToTake.Driver = driverToTakeRide;
-            rideToTake.Status = RideStatus.Waiting;
-            rideToTake.Found = DateTime.UtcNow;
+            rideToTake.DriverTakes(driverToTakeRide, _chronometer);
             _vuberDbContext.Rides.Update(rideToTake);
             _vuberDbContext.SaveChanges();
             _clientHubContext.Clients.User(rideToTake.Client.Username).UpdateRide(new RideToClient(rideToTake)).Start();
