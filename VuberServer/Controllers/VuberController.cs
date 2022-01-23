@@ -15,6 +15,7 @@ using VuberServer.Strategies.CheckWorkloadLevelStrategies;
 using VuberServer.Strategies.CalculateRideDistanceStrategies;
 using VuberServer.Strategies.FindRidesWithLookingStatusStrategies;
 using VuberServer.Strategies.FindNearbyDriversStrategies;
+using VuberCore.Tools;
 
 
 namespace VuberServer.Controllers
@@ -33,6 +34,7 @@ namespace VuberServer.Controllers
         private ICalculateRideDistanceStrategy _calculateRideDistanceStrategy;
         private ICalculateLengthStrategy _calculateLengthStrategy;
         private IFindNearbyDriversStrategy _findNearbyDriversStrategy;
+        private IChronometer _chronometer;
 
         public VuberController(
             IHubContext<ClientHub, IClientClient> clientHubContext,
@@ -45,7 +47,8 @@ namespace VuberServer.Controllers
             ICalculateRideDistanceStrategy calculateRideDistanceStrategy,
             ICheckWorkloadLevelStrategy checkWorkloadLevelStrategy,
             ICalculateLengthStrategy calculateLengthStrategy,
-            IFindNearbyDriversStrategy findNearbyDriversStrategy)
+            IFindNearbyDriversStrategy findNearbyDriversStrategy,
+            IChronometer chronometer)
         {
             _clientHubContext = clientHubContext ?? throw new ArgumentNullException(nameof(clientHubContext));
             _driverHubContext = driverHubContext ?? throw new ArgumentNullException(nameof(driverHubContext));
@@ -59,6 +62,7 @@ namespace VuberServer.Controllers
             _calculateLengthStrategy = calculateLengthStrategy;
             _calculateRideDistanceStrategy = calculateRideDistanceStrategy;
             _findNearbyDriversStrategy = findNearbyDriversStrategy;
+            _chronometer = chronometer;
         }
 
         public Ride CreateNewRide(
@@ -70,19 +74,13 @@ namespace VuberServer.Controllers
             var clientForRide = _vuberDbContext.Clients.FirstOrDefault(client => client.Id == clientId) ??
                                 throw new ArgumentNullException();
 
-            var checkpoints = path.Coordinates.Skip(1).Select(coordinate => new Checkpoint() {Coordinate = new Point(coordinate), IsPassed = false,}).ToList();
-
-            var ride = new Ride()
-            {
-                Client = clientForRide,
-                Cost = CalculatePrice(rideType, path),
-                PaymentType = paymentType,
-                RideType = rideType,
-                Status = RideStatus.Looking,
-                Path = path,
-                Checkpoints = checkpoints,
-                Created = DateTime.UtcNow,
-            };
+            var ride = new Ride(
+                clientForRide,
+                paymentType,
+                CalculatePrice(rideType, path),
+                rideType,
+                path,
+                _chronometer);
             _vuberDbContext.Rides.Add(ride);
             _vuberDbContext.SaveChanges();
             var drivers = NearbyDrivers(path.StartPoint, rideType);
@@ -105,11 +103,13 @@ namespace VuberServer.Controllers
         public void RegisterDriver(NewDriver newDriver)
         {
             _vuberDbContext.Drivers.Add(new Driver
+            (
+                newDriver.MinRideLevel,
+                newDriver.MaxRideLevel
+            )
             {
                 Username = newDriver.Username,
                 Name = newDriver.Name,
-                MinRideLevel = newDriver.MinRideLevel,
-                MaxRideLevel = newDriver.MaxRideLevel
             });
         }
 
@@ -123,9 +123,7 @@ namespace VuberServer.Controllers
             {
                 return false;
             }
-            rideToTake.Driver = driverToTakeRide;
-            rideToTake.Status = RideStatus.Waiting;
-            rideToTake.Found = DateTime.UtcNow;
+            rideToTake.DriverTakes(driverToTakeRide, _chronometer);
             _vuberDbContext.Rides.Update(rideToTake);
             _vuberDbContext.SaveChanges();
             _clientHubContext.Clients.User(rideToTake.Client.Id.ToString()).UpdateRide(new RideToClient(rideToTake));
@@ -137,8 +135,7 @@ namespace VuberServer.Controllers
         {
             var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind => rideToFind.Id == rideId) ??
                              throw new ArgumentNullException();
-            ride.Status = RideStatus.InProgress;
-            ride.Started = DateTime.UtcNow;
+            ride.DriverArrives(_chronometer);
             _vuberDbContext.Rides.Update(ride);
             _vuberDbContext.SaveChanges();
             _clientHubContext.Clients.User(ride.Client.Id.ToString()).UpdateRide(new RideToClient(ride));
@@ -151,8 +148,7 @@ namespace VuberServer.Controllers
                        throw new ArgumentNullException();
             var coordinates = ride.Checkpoints.Select(checkpoint => checkpoint.Coordinate).ToList();
             WithdrawalForRide(ride, CalculatePrice(ride.RideType, ride.Path));
-            ride.Status = RideStatus.Complete;
-            ride.Finished = DateTime.UtcNow;
+            ride.Finish(_chronometer);
             _vuberDbContext.Rides.Update(ride);
             _logger.LogInformation("Ride {0} completed", ride.Id);
         }
@@ -161,29 +157,22 @@ namespace VuberServer.Controllers
         {
             var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind => rideToFind.Id == rideId) ??
                        throw new ArgumentNullException();
-            ride.Checkpoints[checkpointNumber].IsPassed = true;
+            ride.PassCheckpoint(checkpointNumber);
         }
 
         public void CancelRide(Guid rideId)
         {
             var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind => rideToFind.Id == rideId) ??
                              throw new ArgumentNullException();
-            switch (ride.Status)
+            
+            if (ride.Status == RideStatus.InProgress)
             {
-                case RideStatus.Looking:
-                    ride.Status = RideStatus.Cancelled;
-                    break;
-                case RideStatus.Waiting:
-                    ride.Status = RideStatus.Cancelled;
-                    break;
-                case RideStatus.InProgress:
-                    ride.Status = RideStatus.Cancelled;
-                    var coordinates = (from checkpoint in ride.Checkpoints where checkpoint.IsPassed select checkpoint.Coordinate).ToList();
-                    var money = CalculatePrice(ride.RideType, ride.Path);
-                    WithdrawalForRide(ride, money);
-                    break;
+                var coordinates = (from checkpoint in ride.Checkpoints where checkpoint.IsPassed select checkpoint.Coordinate).ToList();
+                var money = CalculatePrice(ride.RideType, ride.Path);
+                WithdrawalForRide(ride, money);
             }
-            ride.Finished = DateTime.UtcNow;
+
+            ride.Cancel(_chronometer);
             _vuberDbContext.Rides.Update(ride);
             _driverHubContext.Clients.User(ride.Driver.Id.ToString()).RideCancelled();
             _logger.LogInformation("Ride {0} canceled", ride.Id);
@@ -201,7 +190,7 @@ namespace VuberServer.Controllers
             return _calculatePriceStrategy.CalculatePrice(rideLength, rideType, WorkloadLevel);
         }
 
-        public List<Ride> SeeRides(Guid userId)
+        public IReadOnlyList<Ride> SeeRides(Guid userId)
         {
             var user = _vuberDbContext.Clients.FirstOrDefault(userToFind => userToFind.Id == userId) ??
                         (User) (_vuberDbContext.Drivers.FirstOrDefault(userToFind => userToFind.Id == userId) ??
@@ -233,8 +222,7 @@ namespace VuberServer.Controllers
         {
             var driver = _vuberDbContext.Drivers.FirstOrDefault(driverToFind => driverToFind.Id == driverId) ??
                          throw new ArgumentNullException();
-            driver.LastKnownLocation = location;
-            driver.LocationUpdatedAt = DateTime.UtcNow;
+            driver.UpdateLocation(location, _chronometer.TimeNow());
             _vuberDbContext.SaveChanges();
             var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind =>
                 rideToFind.Driver.Id == driverId && rideToFind.Status == RideStatus.Waiting);
