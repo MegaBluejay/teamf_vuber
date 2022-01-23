@@ -9,8 +9,11 @@ namespace VuberCore.Entities
             Coordinate = coordinate;
         }
 
-        public Point Coordinate { get; init; }
-        public bool IsPassed { get; private set; }
+        protected Checkpoint() { }
+
+        public int Id { get; set; }
+        public Point Coordinate { get; set; }
+        public bool IsPassed { get; set; }
 
         public void Pass()
         {

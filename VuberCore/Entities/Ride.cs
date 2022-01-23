@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using NetTopologySuite.Geometries;
 using VuberCore.Tools;
 
@@ -9,14 +10,13 @@ namespace VuberCore.Entities
 {
     public class Ride : Entity
     {
-        private List<Checkpoint> _checkpoints;
         public Ride(Client client, PaymentType paymentType, decimal cost, RideType rideType, LineString path, IChronometer chronometer)
         {
             Client = client;
             PaymentType = paymentType;
             Cost = cost;
             RideType = rideType;
-            _checkpoints = path.Coordinates.Skip(1).Select(coordinate => new Checkpoint(new Point(coordinate))).ToList();
+            Checkpoints = path.Coordinates.Skip(1).Select(coordinate => new Checkpoint(new Point(coordinate))).ToList();
             Status = RideStatus.Looking;
             Path = path;
             Created = chronometer.TimeNow();
@@ -32,7 +32,7 @@ namespace VuberCore.Entities
         [Required]
         public RideType RideType { get; private set; }
         [Required]
-        public IEnumerable<Checkpoint> Checkpoints => _checkpoints;
+        public virtual List<Checkpoint> Checkpoints { get; private set; }
         [Required]
         public RideStatus Status { get; private set; }
         [Required]
@@ -90,7 +90,7 @@ namespace VuberCore.Entities
 
         public void PassCheckpoint(int checkpointNumber)
         {
-            _checkpoints[checkpointNumber].Pass();
+            Checkpoints[checkpointNumber].Pass();
         }
     }
 }
