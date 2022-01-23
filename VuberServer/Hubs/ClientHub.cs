@@ -16,15 +16,15 @@ namespace VuberServer.Hubs
 
         public void OrderRide(RideOrder rideOrder)
         {
-            _vuberController.CreateNewRide(Guid.Empty, rideOrder.Path,
+            _vuberController.CreateNewRide(GetCurrentUsername(), rideOrder.Path,
                 rideOrder.PaymentType, rideOrder.RideType);
         }
 
         public void CancelOrder() => throw new NotImplementedException();
 
-        public void AddPaymentCard(string cardData) => _vuberController.AddPaymentCard(GetCurrentId(), cardData);
+        public void AddPaymentCard(string cardData) => _vuberController.AddPaymentCard(GetCurrentUsername(), cardData);
 
-        public IEnumerable<RideToClient> SeeRides() => _vuberController.SeeRides(GetCurrentId()).Select(ride => new RideToClient(ride));
+        public IEnumerable<RideToClient> SeeRides() => _vuberController.SeeRides(GetCurrentUsername()).Select(ride => new RideToClient(ride));
 
         public Rating GetDriverRating(Guid driverGuid) => throw new NotImplementedException();
 

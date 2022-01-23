@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Microsoft.AspNetCore.SignalR;
 using VuberCore.Entities;
 using VuberCore.Hubs;
@@ -16,6 +17,6 @@ namespace VuberServer.Hubs
 
         public abstract void SetRating(Mark mark, Guid rideId);
 
-        protected Guid GetCurrentId() => Guid.Parse(Context.User.Identity.Name);
+        protected string GetCurrentUsername() => Context.User.Identity.Name;
     }
 }

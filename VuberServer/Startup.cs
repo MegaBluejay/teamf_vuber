@@ -35,8 +35,10 @@ namespace VuberServer
                 options
                     .UseLazyLoadingProxies()
                     .UseNpgsql(connectionString,
-                        options => options.UseNetTopologySuite()));
+                        npgsqlOptions=> npgsqlOptions.UseNetTopologySuite()));
             services.AddSingleton<IUserIdProvider, VuberUserIdProvider>();
+            services.AddAuthentication()
+                .AddBasicAuthentication<VuberCredentialVerifier>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -58,6 +60,7 @@ namespace VuberServer
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

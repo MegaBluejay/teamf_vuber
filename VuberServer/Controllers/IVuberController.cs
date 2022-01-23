@@ -8,12 +8,12 @@ namespace VuberServer.Controllers
     public interface IVuberController
     {
         Ride CreateNewRide(
-            Guid clientId,
+            string clientUsername,
             LineString path,
             PaymentType paymentType,
             RideType rideType);
 
-        bool DriverTakesRide(Guid driverId, Guid rideId);
+        bool DriverTakesRide(string driverUsername, Guid rideId);
 
         void DriverArrives(Guid rideId);
 
@@ -22,13 +22,13 @@ namespace VuberServer.Controllers
 
         void CancelRide(Guid rideId);
 
-        List<Ride> SeeRides(Guid userId);
+        List<Ride> SeeRides(string userUsername);
 
         void SetRating(Mark rating, Guid rideId, Func<Ride, User> userGetter);
 
-        void AddPaymentCard(Guid clientId, string cardData);
+        void AddPaymentCard(string clientUsername, string cardData);
 
-        void UpdateDriverLocation(Guid driverId, Point location);
+        void UpdateDriverLocation(string driverUsername, Point location);
 
         //void SendNotification(string notification, Guid userToSendNotificationId)
     }
