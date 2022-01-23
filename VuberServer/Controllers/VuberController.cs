@@ -168,9 +168,7 @@ namespace VuberServer.Controllers
             if (ride.Status == RideStatus.InProgress)
             {
                 var coordinates = (from checkpoint in ride.Checkpoints where checkpoint.IsPassed select checkpoint.Coordinate).ToList();
-
-                decimal distanceTravelled = _calculateRideDistanceStrategy.Calculate(ride.Path);
-                decimal money = _calculatePriceStrategy.CalculatePrice(distanceTravelled, ride.RideType, WorkloadLevel);
+                var money = CalculatePrice(ride.RideType, ride.Path);
                 WithdrawalForRide(ride, money);
             }
 
@@ -257,7 +255,7 @@ namespace VuberServer.Controllers
                     break;
                 case PaymentType.PaymentCard:
                     var paymentCard = ride.Client.PaymentCard ?? throw new ArgumentNullException();
-                    //а что здесь вообще? можно либо при создании карты класть на нее рандомное кол-во денег, но я даже не знаю...
+                    paymentCard.Money -= money;
                     break;
             }
         }
