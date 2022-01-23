@@ -7,5 +7,7 @@ namespace VuberCore.Entities
         public int Id { get; init; }
         [Required]
         public string CardData { get; init; }
+        [Required]
+        public decimal Money { get; set; }
     }
 }
