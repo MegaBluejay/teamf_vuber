@@ -10,7 +10,8 @@ namespace VuberCore.Entities
     public class Ride : Entity
     {
         private List<Checkpoint> _checkpoints;
-        public Ride(Client client, PaymentType paymentType, decimal cost, RideType rideType, LineString path, DateTime createdDateTime)
+        private IChronometer _chronometer;
+        public Ride(Client client, PaymentType paymentType, decimal cost, RideType rideType, LineString path, IChronometer chronometer)
         {
             Client = client;
             PaymentType = paymentType;
@@ -19,7 +20,8 @@ namespace VuberCore.Entities
             _checkpoints = path.Coordinates.Skip(1).Select(coordinate => new Checkpoint(new Point(coordinate))).ToList();
             Status = RideStatus.Looking;
             Path = path;
-            Created = createdDateTime;
+            _chronometer = chronometer;
+            Created = _chronometer.TimeNow();
         }
 
         [Required]
@@ -43,7 +45,7 @@ namespace VuberCore.Entities
         public DateTime Started { get; private set; }
         public DateTime Finished { get; private set; }
 
-        public void DriverTakes(Driver driver, DateTime foundDateTime)
+        public void DriverTakes(Driver driver)
         {
             if (Status != RideStatus.Looking)
             {
@@ -52,7 +54,7 @@ namespace VuberCore.Entities
 
             Driver = driver;
             Status = RideStatus.Waiting;
-            Found = foundDateTime;
+            Found = _chronometer.TimeNow();
         }
 
         public void DriverArrives(DateTime startedDateTime)
@@ -66,7 +68,7 @@ namespace VuberCore.Entities
             Started = startedDateTime;
         }
 
-        public void Finish(DateTime finishedDateTime)
+        public void Finish()
         {
             if (Status != RideStatus.InProgress)
             {
@@ -74,10 +76,10 @@ namespace VuberCore.Entities
             }
 
             Status = RideStatus.Complete;
-            Finished = finishedDateTime;
+            Finished = _chronometer.TimeNow();
         }
 
-        public void Cancel(DateTime cancelDateTime)
+        public void Cancel()
         {
             if (Status == RideStatus.Complete || Status == RideStatus.Cancelled)
             {
@@ -85,7 +87,7 @@ namespace VuberCore.Entities
             }
 
             Status = RideStatus.Cancelled;
-            Finished = cancelDateTime;
+            Finished = _chronometer.TimeNow();
         }
 
         public void PassCheckpoint(int checkpointNumber)

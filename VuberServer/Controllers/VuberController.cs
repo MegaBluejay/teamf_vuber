@@ -80,7 +80,7 @@ namespace VuberServer.Controllers
                 CalculatePrice(rideType, path),
                 rideType,
                 path,
-                _chronometer.TimeNow());
+                _chronometer);
             _vuberDbContext.Rides.Add(ride);
             _vuberDbContext.SaveChanges();
             var drivers = NearbyDrivers(path.StartPoint, rideType);
@@ -123,7 +123,7 @@ namespace VuberServer.Controllers
             {
                 return false;
             }
-            rideToTake.DriverTakes(driverToTakeRide, _chronometer.TimeNow());
+            rideToTake.DriverTakes(driverToTakeRide);
             _vuberDbContext.Rides.Update(rideToTake);
             _vuberDbContext.SaveChanges();
             _clientHubContext.Clients.User(rideToTake.Client.Id.ToString()).UpdateRide(new RideToClient(rideToTake));
@@ -148,7 +148,7 @@ namespace VuberServer.Controllers
                        throw new ArgumentNullException();
             var coordinates = ride.Checkpoints.Select(checkpoint => checkpoint.Coordinate).ToList();
             WithdrawalForRide(ride, CalculatePrice(ride.RideType, ride.Path));
-            ride.Finish(_chronometer.TimeNow());
+            ride.Finish();
             _vuberDbContext.Rides.Update(ride);
             _logger.LogInformation("Ride {0} completed", ride.Id);
         }
@@ -174,7 +174,7 @@ namespace VuberServer.Controllers
                 WithdrawalForRide(ride, money);
             }
 
-            ride.Cancel(_chronometer.TimeNow());
+            ride.Cancel();
             _vuberDbContext.Rides.Update(ride);
             _driverHubContext.Clients.User(ride.Driver.Id.ToString()).RideCancelled();
             _logger.LogInformation("Ride {0} canceled", ride.Id);
