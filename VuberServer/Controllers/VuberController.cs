@@ -15,6 +15,7 @@ using VuberServer.Strategies.CheckWorkloadLevelStrategies;
 using VuberServer.Strategies.CalculateRideDistanceStrategies;
 using VuberServer.Strategies.FindRidesWithLookingStatusStrategies;
 using VuberServer.Strategies.FindNearbyDriversStrategies;
+using VuberCore.Tools;
 
 
 namespace VuberServer.Controllers
@@ -70,19 +71,13 @@ namespace VuberServer.Controllers
             var clientForRide = _vuberDbContext.Clients.FirstOrDefault(client => client.Id == clientId) ??
                                 throw new ArgumentNullException();
 
-            var checkpoints = path.Coordinates.Skip(1).Select(coordinate => new Checkpoint() {Coordinate = new Point(coordinate), IsPassed = false,}).ToList();
-
-            var ride = new Ride()
-            {
-                Client = clientForRide,
-                Cost = CalculatePrice(rideType, path),
-                PaymentType = paymentType,
-                RideType = rideType,
-                Status = RideStatus.Looking,
-                Path = path,
-                Checkpoints = checkpoints,
-                Created = DateTime.UtcNow,
-            };
+            var ride = new Ride(
+                clientForRide,
+                paymentType,
+                CalculatePrice(rideType, path),
+                rideType,
+                path,
+                DateTime.UtcNow);
             _vuberDbContext.Rides.Add(ride);
             _vuberDbContext.SaveChanges();
             var drivers = NearbyDrivers(path.StartPoint, rideType);
@@ -105,11 +100,13 @@ namespace VuberServer.Controllers
         public void RegisterDriver(NewDriver newDriver)
         {
             _vuberDbContext.Drivers.Add(new Driver
+            (
+                newDriver.MinRideLevel,
+                newDriver.MaxRideLevel
+            )
             {
                 Username = newDriver.Username,
                 Name = newDriver.Name,
-                MinRideLevel = newDriver.MinRideLevel,
-                MaxRideLevel = newDriver.MaxRideLevel
             });
         }
 
@@ -123,9 +120,7 @@ namespace VuberServer.Controllers
             {
                 return false;
             }
-            rideToTake.Driver = driverToTakeRide;
-            rideToTake.Status = RideStatus.Waiting;
-            rideToTake.Found = DateTime.UtcNow;
+            rideToTake.DriverTakes(driverToTakeRide, DateTime.UtcNow);
             _vuberDbContext.Rides.Update(rideToTake);
             _vuberDbContext.SaveChanges();
             _clientHubContext.Clients.User(rideToTake.Client.Id.ToString()).UpdateRide(new RideToClient(rideToTake));
@@ -137,8 +132,7 @@ namespace VuberServer.Controllers
         {
             var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind => rideToFind.Id == rideId) ??
                              throw new ArgumentNullException();
-            ride.Status = RideStatus.InProgress;
-            ride.Started = DateTime.UtcNow;
+            ride.DriverArrives(DateTime.UtcNow);
             _vuberDbContext.Rides.Update(ride);
             _vuberDbContext.SaveChanges();
             _clientHubContext.Clients.User(ride.Client.Id.ToString()).UpdateRide(new RideToClient(ride));
@@ -151,8 +145,7 @@ namespace VuberServer.Controllers
                        throw new ArgumentNullException();
             var coordinates = ride.Checkpoints.Select(checkpoint => checkpoint.Coordinate).ToList();
             WithdrawalForRide(ride, CalculatePrice(ride.RideType, ride.Path));
-            ride.Status = RideStatus.Complete;
-            ride.Finished = DateTime.UtcNow;
+            ride.Finish(DateTime.UtcNow);
             _vuberDbContext.Rides.Update(ride);
             _logger.LogInformation("Ride {0} completed", ride.Id);
         }
@@ -161,33 +154,24 @@ namespace VuberServer.Controllers
         {
             var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind => rideToFind.Id == rideId) ??
                        throw new ArgumentNullException();
-            ride.Checkpoints[checkpointNumber].IsPassed = true;
+            ride.PassCheckpoint(checkpointNumber);
         }
 
         public void CancelRide(Guid rideId)
         {
             var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind => rideToFind.Id == rideId) ??
                              throw new ArgumentNullException();
-            switch (ride.Status)
+            
+            if (ride.Status == RideStatus.InProgress)
             {
-                case RideStatus.Looking:
-                    ride.Status = RideStatus.Cancelled;
-                    break;
-                case RideStatus.Waiting:
-                    ride.Status = RideStatus.Cancelled;
-                    break;
-                case RideStatus.InProgress:
-                    ride.Status = RideStatus.Cancelled;
-                     var coordinates = (from checkpoint in ride.Checkpoints where checkpoint.IsPassed select checkpoint.Coordinate).ToList();
+                var coordinates = (from checkpoint in ride.Checkpoints where checkpoint.IsPassed select checkpoint.Coordinate).ToList();
 
-                    decimal distanceTravelled = _calculateRideDistanceStrategy.Calculate(ride.Path);
-                    decimal money = _calculatePriceStrategy.CalculatePrice(distanceTravelled, ride.RideType, WorkloadLevel);
-                    WithdrawalForRide(ride, money);
-                    break;
-                default:
-                    throw new Exception("Ride cannot be cancelled");
+                decimal distanceTravelled = _calculateRideDistanceStrategy.Calculate(ride.Path);
+                decimal money = _calculatePriceStrategy.CalculatePrice(distanceTravelled, ride.RideType, WorkloadLevel);
+                WithdrawalForRide(ride, money);
             }
-            ride.Finished = DateTime.UtcNow;
+
+            ride.Cancel(DateTime.UtcNow);
             _vuberDbContext.Rides.Update(ride);
             _driverHubContext.Clients.User(ride.Driver.Id.ToString()).RideCancelled();
             _logger.LogInformation("Ride {0} canceled", ride.Id);
@@ -237,8 +221,7 @@ namespace VuberServer.Controllers
         {
             var driver = _vuberDbContext.Drivers.FirstOrDefault(driverToFind => driverToFind.Id == driverId) ??
                          throw new ArgumentNullException();
-            driver.LastKnownLocation = location;
-            driver.LocationUpdatedAt = DateTime.UtcNow;
+            driver.UpdateLocation(location, DateTime.UtcNow);
             _vuberDbContext.SaveChanges();
             var ride = _vuberDbContext.Rides.FirstOrDefault(rideToFind =>
                 rideToFind.Driver.Id == driverId && rideToFind.Status == RideStatus.Waiting);

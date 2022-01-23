@@ -1,4 +1,6 @@
-﻿namespace VuberCore.Entities
+﻿using VuberCore.Tools;
+
+namespace VuberCore.Entities
 {
     public class Mark
     {
@@ -7,7 +9,7 @@
         {
             if (value is > 5.0 or < 0.0)
             {
-                throw new System.Exception("Error: mark must be from 0 to 5");
+                throw new VuberException("Error: mark must be from 0 to 5");
             }
 
             Value = value;
