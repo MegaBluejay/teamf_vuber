@@ -16,12 +16,23 @@ namespace VuberServer.Tools
 {
     public class VuberControllerOptionsBuilder
     {
+        private VuberControllerOptions _options;
+
         public VuberControllerOptionsBuilder()
         {
             Reset();
         }
 
-        public VuberControllerOptions Options { get; private set; }
+        public VuberControllerOptions Options
+        {
+            get
+            {
+                var options = _options;
+                Reset();
+                return options;
+            }
+            private set => _options = value;
+        }
 
         public VuberControllerOptionsBuilder Reset()
         {
