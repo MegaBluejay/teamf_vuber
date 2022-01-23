@@ -7,6 +7,7 @@ using NetTopologySuite.Geometries;
 using VuberCore.Entities;
 using VuberServer.Hubs;
 using VuberCore.Dto;
+using VuberCore.Tools;
 using VuberServer.Clients;
 using VuberServer.Data;
 using VuberServer.Strategies.CalculateNewRatingStrategies;
@@ -15,6 +16,7 @@ using VuberServer.Strategies.CheckWorkloadLevelStrategies;
 using VuberServer.Strategies.CalculateRideDistanceStrategies;
 using VuberServer.Strategies.FindRidesWithLookingStatusStrategies;
 using VuberServer.Strategies.FindNearbyDriversStrategies;
+using VuberServer.Tools;
 
 
 namespace VuberServer.Controllers
@@ -35,33 +37,25 @@ namespace VuberServer.Controllers
         private IFindNearbyDriversStrategy _findNearbyDriversStrategy;
         private IChronometer _chronometer;
 
-        public VuberController(
-            IHubContext<ClientHub, IClientClient> clientHubContext,
-            IHubContext<DriverHub, IDriverClient> driverHubContext,
-            VuberDbContext vuberDbContext,
-            ILogger<VuberController> logger,
-            ICalculateNewRatingStrategy calculateNewRatingStrategy,
-            ICalculatePriceStrategy calculatePriceStrategy,
-            IFindRidesWithLookingStatusStrategy findRidesWithLookingStatusStrategy,
-            ICalculateRideDistanceStrategy calculateRideDistanceStrategy,
-            ICheckWorkloadLevelStrategy checkWorkloadLevelStrategy,
-            ICalculateLengthStrategy calculateLengthStrategy,
-            IFindNearbyDriversStrategy findNearbyDriversStrategy,
-            IChronometer chronometer)
+        public VuberController(VuberControllerOptions options)
         {
-            _clientHubContext = clientHubContext ?? throw new ArgumentNullException(nameof(clientHubContext));
-            _driverHubContext = driverHubContext ?? throw new ArgumentNullException(nameof(driverHubContext));
-            _vuberDbContext = vuberDbContext;
-            WorkloadLevel = WorkloadLevel.Normal;
-            _logger = logger;
-            _calculateNewRatingStrategy = calculateNewRatingStrategy;
-            _calculatePriceStrategy = calculatePriceStrategy;
-            _findRidesWithLookingStatusStrategy = findRidesWithLookingStatusStrategy;
-            _checkWorkloadLevelStrategy = checkWorkloadLevelStrategy;
-            _calculateLengthStrategy = calculateLengthStrategy;
-            _calculateRideDistanceStrategy = calculateRideDistanceStrategy;
-            _findNearbyDriversStrategy = findNearbyDriversStrategy;
-            _chronometer = chronometer;
+            if (!options.Validate())
+            {
+                throw new VuberException("fuck");
+            }
+            _clientHubContext = options.ClientHubContext;
+            _driverHubContext = options.DriverHubContext;
+            _vuberDbContext = options.DbContext;
+            WorkloadLevel = options.WorkloadLevel;
+            _logger = options.Logger;
+            _calculateNewRatingStrategy = options.CalculateNewRatingStrategy;
+            _calculatePriceStrategy = options.CalculatePriceStrategy;
+            _findRidesWithLookingStatusStrategy = options.FindRidesWithLookingStatusStrategy;
+            _checkWorkloadLevelStrategy = options.CheckWorkloadLevelStrategy;
+            _calculateLengthStrategy = options.CalculateLengthStrategy;
+            _calculateRideDistanceStrategy = options.CalculateRideDistanceStrategy;
+            _findNearbyDriversStrategy = options.FindNearbyDriversStrategy;
+            _chronometer = options.Chronometer;
         }
 
         public Ride CreateNewRide(
