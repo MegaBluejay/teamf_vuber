@@ -178,14 +178,10 @@ namespace VuberServer.Controllers
                     break;
                 case RideStatus.InProgress:
                     ride.Status = RideStatus.Cancelled;
-                     var coordinates = (from checkpoint in ride.Checkpoints where checkpoint.IsPassed select checkpoint.Coordinate).ToList();
-
-                    decimal distanceTravelled = _calculateRideDistanceStrategy.Calculate(ride.Path);
-                    decimal money = _calculatePriceStrategy.CalculatePrice(distanceTravelled, ride.RideType, WorkloadLevel);
+                    var coordinates = (from checkpoint in ride.Checkpoints where checkpoint.IsPassed select checkpoint.Coordinate).ToList();
+                    var money = CalculatePrice(ride.RideType, ride.Path);
                     WithdrawalForRide(ride, money);
                     break;
-                default:
-                    throw new Exception("Ride cannot be cancelled");
             }
             ride.Finished = DateTime.UtcNow;
             _vuberDbContext.Rides.Update(ride);
