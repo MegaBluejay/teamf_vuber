@@ -189,7 +189,7 @@ namespace VuberServer.Controllers
             return _calculatePriceStrategy.CalculatePrice(rideLength, rideType, WorkloadLevel);
         }
 
-        public List<Ride> SeeRides(Guid userId)
+        public IReadOnlyList<Ride> SeeRides(Guid userId)
         {
             var user = _vuberDbContext.Clients.FirstOrDefault(userToFind => userToFind.Id == userId) ??
                         (User) (_vuberDbContext.Drivers.FirstOrDefault(userToFind => userToFind.Id == userId) ??

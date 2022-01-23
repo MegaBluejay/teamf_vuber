@@ -28,7 +28,7 @@ namespace VuberServer.Controllers
 
         void CancelRide(Guid rideId);
 
-        List<Ride> SeeRides(Guid userId);
+        IReadOnlyList<Ride> SeeRides(Guid userId);
 
         void SetRating(Mark rating, Guid rideId, Func<Ride, User> userGetter);
 

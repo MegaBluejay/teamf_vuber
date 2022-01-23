@@ -4,7 +4,7 @@ namespace VuberCore.Entities
 {
     public class Mark
     {
-        public int Id { get; set; }
+        public int Id { get; init; }
         public Mark(double value)
         {
             if (value is > 5.0 or < 0.0)
@@ -17,6 +17,6 @@ namespace VuberCore.Entities
 
         protected Mark() { }
 
-        public double Value { get; }
+        public double Value { get; private init; }
     }
 }
