@@ -267,7 +267,7 @@ namespace VuberServer.Controllers
                     break;
                 case PaymentType.PaymentCard:
                     var paymentCard = ride.Client.PaymentCard ?? throw new ArgumentNullException();
-                    //а что здесь вообще? можно либо при создании карты класть на нее рандомное кол-во денег, но я даже не знаю...
+                    paymentCard.Money -= money;
                     break;
             }
         }
