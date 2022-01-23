@@ -40,6 +40,7 @@ namespace VuberClientClient
                 .WithUrl("http://localhost/client", options => options.Headers["Authorization"] = $"Basic {creds}")
                 .WithAutomaticReconnect()
                 .Build();
+            hubConnection.StartAsync().RunSynchronously();
             var clientNotificationController = new ClientNotificationController();
             services.AddSingleton<IClientHub, ClientHubWrapper>(_ =>
                 new ClientHubWrapper(hubConnection, clientNotificationController));
