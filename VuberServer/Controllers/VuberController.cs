@@ -77,7 +77,7 @@ namespace VuberServer.Controllers
             _vuberDbContext.Rides.Add(ride);
             _vuberDbContext.SaveChanges();
             var drivers = NearbyDrivers(path.StartPoint, rideType);
-            _driverHubContext.Clients.Clients(drivers.Select(driver => driver.Username))
+            _driverHubContext.Clients.Users(drivers.Select(driver => driver.Username))
                 .RideRequested(new RideToDriver(ride)).Start();
             _logger.LogInformation("Ride {0} created", ride.Id);
             return ride;
