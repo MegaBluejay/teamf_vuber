@@ -1,5 +1,8 @@
 using System;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using NetTopologySuite.Geometries;
+using VuberClientClient.Dto;
 using VuberCore.Entities;
 using VuberCore.Dto;
 using VuberCore.Hubs;
@@ -26,9 +29,14 @@ namespace VuberClientClient.Controllers
 
         [HttpPost]
         [Route("create-order")]
-        public IActionResult OrderRide([FromBody] RideOrder rideOrder)
+        public IActionResult OrderRide([FromBody] RideOrderDto rideOrder)
         {
-            _hub.OrderRide(rideOrder);
+            _hub.OrderRide(new RideOrder()
+            {
+                Path = new LineString(rideOrder.Path.Points.Select(point => new Coordinate(point.X, point.Y)).ToArray()),
+                RideType = rideOrder.RideType,
+                PaymentType = rideOrder.PaymentType
+            });
             return Ok();
         }
 

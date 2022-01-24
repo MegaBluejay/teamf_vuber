@@ -35,7 +35,7 @@ namespace VuberClientClient
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "VuberClientClient", Version = "v1" });
             });
             var creds = Convert.ToBase64String(System.Text.Encoding.GetEncoding("ISO-8859-1")
-                .GetBytes("SomeUserName" + ":" + "__NOPASS__"));
+                .GetBytes("string" + ":" + "__NOPASS__"));
             var hubConnection = new HubConnectionBuilder()
                 .WithUrl("http://localhost:5000/client", options => options.Headers["Authorization"] = $"Basic {creds}")
                 .WithAutomaticReconnect()
