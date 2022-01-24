@@ -8,7 +8,7 @@ namespace VuberServer.Strategies.FindNearbyDriversStrategies
 {
     public class FindNearbyDriversWithMinimalDistanceStrategy : IFindNearbyDriversStrategy
     {
-        private decimal _minimalDistance;
+        private readonly decimal _minimalDistance;
 
         public FindNearbyDriversWithMinimalDistanceStrategy(decimal minimalDistance)
         {

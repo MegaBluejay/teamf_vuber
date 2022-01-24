@@ -26,16 +26,16 @@ namespace VuberServer.Controllers
         private readonly IHubContext<ClientHub, IClientClient> _clientHubContext;
         private readonly IHubContext<DriverHub, IDriverClient> _driverHubContext;
         private readonly VuberDbContext _vuberDbContext;
-        private WorkloadLevel WorkloadLevel;
-        private ILogger<VuberController> _logger;
-        private ICalculateNewRatingStrategy _calculateNewRatingStrategy;
-        private ICalculatePriceStrategy _calculatePriceStrategy;
-        private ICheckWorkloadLevelStrategy _checkWorkloadLevelStrategy;
-        private IFindRidesWithLookingStatusStrategy _findRidesWithLookingStatusStrategy;
-        private ICalculateRideDistanceStrategy _calculateRideDistanceStrategy;
-        private ICalculateLengthStrategy _calculateLengthStrategy;
-        private IFindNearbyDriversStrategy _findNearbyDriversStrategy;
-        private IChronometer _chronometer;
+        private WorkloadLevel _workloadLevel;
+        private readonly ILogger<VuberController> _logger;
+        private readonly ICalculateNewRatingStrategy _calculateNewRatingStrategy;
+        private readonly ICalculatePriceStrategy _calculatePriceStrategy;
+        private readonly ICheckWorkloadLevelStrategy _checkWorkloadLevelStrategy;
+        private readonly IFindRidesWithLookingStatusStrategy _findRidesWithLookingStatusStrategy;
+        private readonly ICalculateRideDistanceStrategy _calculateRideDistanceStrategy;
+        private readonly ICalculateLengthStrategy _calculateLengthStrategy;
+        private readonly IFindNearbyDriversStrategy _findNearbyDriversStrategy;
+        private readonly IChronometer _chronometer;
 
         public VuberController(VuberControllerOptions options)
         {
@@ -46,7 +46,7 @@ namespace VuberServer.Controllers
             _clientHubContext = options.ClientHubContext;
             _driverHubContext = options.DriverHubContext;
             _vuberDbContext = options.DbContext;
-            WorkloadLevel = options.WorkloadLevel;
+            _workloadLevel = options.WorkloadLevel;
             _logger = options.Logger;
             _calculateNewRatingStrategy = options.CalculateNewRatingStrategy;
             _calculatePriceStrategy = options.CalculatePriceStrategy;
@@ -176,7 +176,7 @@ namespace VuberServer.Controllers
         {
             var rideLength = CalculateRideLength(path);
             CheckWorkloadLevel();
-            return _calculatePriceStrategy.CalculatePrice(rideLength, rideType, WorkloadLevel);
+            return _calculatePriceStrategy.CalculatePrice(rideLength, rideType, _workloadLevel);
         }
 
         public IReadOnlyList<Ride> SeeRides(string userUsername)
@@ -229,7 +229,7 @@ namespace VuberServer.Controllers
 
         private void CheckWorkloadLevel()
         {
-            WorkloadLevel = _checkWorkloadLevelStrategy.CheckWorkloadLevel(
+            _workloadLevel = _checkWorkloadLevelStrategy.CheckWorkloadLevel(
                 _vuberDbContext
                 .Rides
                 .Where(ride => ride.Status == RideStatus.Looking).ToList().Count);

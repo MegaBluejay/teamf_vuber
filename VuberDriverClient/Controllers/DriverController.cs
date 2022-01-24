@@ -4,7 +4,6 @@ using VuberCore.Entities;
 using VuberCore.Dto;
 using VuberCore.Hubs;
 using NetTopologySuite.Geometries;
-using VuberCore.Hubs;
 
 namespace VuberDriverClient.Controllers
 {
@@ -12,7 +11,7 @@ namespace VuberDriverClient.Controllers
     [Route("/driver")]
     public class DriverController : ControllerBase
     {
-        private IDriverHub _hub;
+        private readonly IDriverHub _hub;
 
         public DriverController(IDriverHub hub)
         {

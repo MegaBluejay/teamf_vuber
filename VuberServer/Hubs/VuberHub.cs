@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using Microsoft.AspNetCore.SignalR;
 using VuberCore.Entities;
 using VuberCore.Hubs;
