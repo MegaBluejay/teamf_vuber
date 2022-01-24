@@ -18,7 +18,7 @@ namespace VuberClientClient.Controllers
 
         [HttpPost]
         [Route("register")]
-        public IActionResult Register([FromQuery] NewClient newClient)
+        public IActionResult Register([FromBody] NewClient newClient)
         {
             _hub.Register(newClient);
             return Ok();
@@ -26,7 +26,7 @@ namespace VuberClientClient.Controllers
 
         [HttpPost]
         [Route("create-order")]
-        public IActionResult OrderRide([FromQuery] RideOrder rideOrder)
+        public IActionResult OrderRide([FromBody] RideOrder rideOrder)
         {
             _hub.OrderRide(rideOrder);
             return Ok();
@@ -57,7 +57,7 @@ namespace VuberClientClient.Controllers
 
         [HttpGet]
         [Route("set-rating")]
-        public IActionResult SetRating([FromQuery] Mark mark, [FromQuery] Guid driverId)
+        public IActionResult SetRating([FromBody] Mark mark, [FromQuery] Guid driverId)
         {
             _hub.SetRating(mark, driverId);
             return Ok();

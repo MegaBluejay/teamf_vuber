@@ -21,7 +21,7 @@ namespace VuberDriverClient.Controllers
 
         [HttpPost]
         [Route("register")]
-        public IActionResult Register([FromQuery] NewDriver newDriver)
+        public IActionResult Register([FromBody] NewDriver newDriver)
         {
             _hub.Register(newDriver);
             return Ok();
@@ -36,7 +36,7 @@ namespace VuberDriverClient.Controllers
 
         [HttpPost]
         [Route("set-rating")]
-        public IActionResult SetRating([FromQuery] Mark mark, [FromQuery] Guid rideId)
+        public IActionResult SetRating([FromBody] Mark mark, [FromQuery] Guid rideId)
         {
             _hub.SetRating(mark, rideId);
             return Ok();
@@ -60,7 +60,7 @@ namespace VuberDriverClient.Controllers
 
         [HttpPost]
         [Route("send-current-location")]
-        public IActionResult SendCurrentLocation([FromQuery] Point point)
+        public IActionResult SendCurrentLocation([FromBody] Point point)
         {
             _hub.SendCurrentLocation(point);
             return Ok();
