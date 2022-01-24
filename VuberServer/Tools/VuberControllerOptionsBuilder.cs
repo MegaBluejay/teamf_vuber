@@ -31,91 +31,90 @@ namespace VuberServer.Tools
                 Reset();
                 return options;
             }
-            private set => _options = value;
         }
 
         public VuberControllerOptionsBuilder Reset()
         {
-            Options = new VuberControllerOptions();
+            _options = new VuberControllerOptions();
             return this;
         }
 
         public VuberControllerOptionsBuilder UseClientHubContext(IHubContext<ClientHub, IClientClient> clientHubContext)
         {
-            Options.ClientHubContext = clientHubContext;
+            _options.ClientHubContext = clientHubContext;
             return this;
         }
 
         public VuberControllerOptionsBuilder UseDriverHubContext(IHubContext<DriverHub, IDriverClient> driverHubContext)
         {
-            Options.DriverHubContext = driverHubContext;
+            _options.DriverHubContext = driverHubContext;
             return this;
         }
 
         public VuberControllerOptionsBuilder UseDbContext(VuberDbContext dbContext)
         {
-            Options.DbContext = dbContext;
+            _options.DbContext = dbContext;
             return this;
         }
 
         public VuberControllerOptionsBuilder WorkloadLevel(WorkloadLevel workloadLevel)
         {
-            Options.WorkloadLevel = workloadLevel;
+            _options.WorkloadLevel = workloadLevel;
             return this;
         }
 
         public VuberControllerOptionsBuilder UseLogger(ILogger<VuberController> logger)
         {
-            Options.Logger = logger;
+            _options.Logger = logger;
             return this;
         }
 
         public VuberControllerOptionsBuilder CalculateNewRatingStrategy(ICalculateNewRatingStrategy strategy)
         {
-            Options.CalculateNewRatingStrategy = strategy;
+            _options.CalculateNewRatingStrategy = strategy;
             return this;
         }
 
         public VuberControllerOptionsBuilder CalculatePriceStrategy(ICalculatePriceStrategy strategy)
         {
-            Options.CalculatePriceStrategy = strategy;
+            _options.CalculatePriceStrategy = strategy;
             return this;
         }
 
         public VuberControllerOptionsBuilder CheckWorkloadLevelStrategy(ICheckWorkloadLevelStrategy strategy)
         {
-            Options.CheckWorkloadLevelStrategy = strategy;
+            _options.CheckWorkloadLevelStrategy = strategy;
             return this;
         }
 
         public VuberControllerOptionsBuilder FindRidesWithLookingStatusStrategy(
             IFindRidesWithLookingStatusStrategy strategy)
         {
-            Options.FindRidesWithLookingStatusStrategy = strategy;
+            _options.FindRidesWithLookingStatusStrategy = strategy;
             return this;
         }
 
         public VuberControllerOptionsBuilder CalculateRideDistanceStrategy(ICalculateRideDistanceStrategy strategy)
         {
-            Options.CalculateRideDistanceStrategy = strategy;
+            _options.CalculateRideDistanceStrategy = strategy;
             return this;
         }
 
         public VuberControllerOptionsBuilder CalculateLengthStrategy(ICalculateLengthStrategy strategy)
         {
-            Options.CalculateLengthStrategy = strategy;
+            _options.CalculateLengthStrategy = strategy;
             return this;
         }
 
         public VuberControllerOptionsBuilder FindNearbyDriversStrategy(IFindNearbyDriversStrategy strategy)
         {
-            Options.FindNearbyDriversStrategy = strategy;
+            _options.FindNearbyDriversStrategy = strategy;
             return this;
         }
 
         public VuberControllerOptionsBuilder Chronometer(IChronometer chronometer)
         {
-            Options.Chronometer = chronometer;
+            _options.Chronometer = chronometer;
             return this;
         }
     }
