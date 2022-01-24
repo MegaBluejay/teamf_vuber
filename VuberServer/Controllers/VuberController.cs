@@ -7,6 +7,7 @@ using NetTopologySuite.Geometries;
 using VuberCore.Entities;
 using VuberServer.Hubs;
 using VuberCore.Dto;
+using VuberCore.Tools;
 using VuberServer.Clients;
 using VuberServer.Data;
 using VuberServer.Strategies.CalculateNewRatingStrategies;
@@ -15,6 +16,7 @@ using VuberServer.Strategies.CheckWorkloadLevelStrategies;
 using VuberServer.Strategies.CalculateRideDistanceStrategies;
 using VuberServer.Strategies.FindRidesWithLookingStatusStrategies;
 using VuberServer.Strategies.FindNearbyDriversStrategies;
+using VuberServer.Tools;
 
 
 namespace VuberServer.Controllers
@@ -24,44 +26,36 @@ namespace VuberServer.Controllers
         private readonly IHubContext<ClientHub, IClientClient> _clientHubContext;
         private readonly IHubContext<DriverHub, IDriverClient> _driverHubContext;
         private readonly VuberDbContext _vuberDbContext;
-        private WorkloadLevel WorkloadLevel;
-        private ILogger<VuberController> _logger;
-        private ICalculateNewRatingStrategy _calculateNewRatingStrategy;
-        private ICalculatePriceStrategy _calculatePriceStrategy;
-        private ICheckWorkloadLevelStrategy _checkWorkloadLevelStrategy;
-        private IFindRidesWithLookingStatusStrategy _findRidesWithLookingStatusStrategy;
-        private ICalculateRideDistanceStrategy _calculateRideDistanceStrategy;
-        private ICalculateLengthStrategy _calculateLengthStrategy;
-        private IFindNearbyDriversStrategy _findNearbyDriversStrategy;
-        private IChronometer _chronometer;
+        private WorkloadLevel _workloadLevel;
+        private readonly ILogger<VuberController> _logger;
+        private readonly ICalculateNewRatingStrategy _calculateNewRatingStrategy;
+        private readonly ICalculatePriceStrategy _calculatePriceStrategy;
+        private readonly ICheckWorkloadLevelStrategy _checkWorkloadLevelStrategy;
+        private readonly IFindRidesWithLookingStatusStrategy _findRidesWithLookingStatusStrategy;
+        private readonly ICalculateRideDistanceStrategy _calculateRideDistanceStrategy;
+        private readonly ICalculateLengthStrategy _calculateLengthStrategy;
+        private readonly IFindNearbyDriversStrategy _findNearbyDriversStrategy;
+        private readonly IChronometer _chronometer;
 
-        public VuberController(
-            IHubContext<ClientHub, IClientClient> clientHubContext,
-            IHubContext<DriverHub, IDriverClient> driverHubContext,
-            VuberDbContext vuberDbContext,
-            ILogger<VuberController> logger,
-            ICalculateNewRatingStrategy calculateNewRatingStrategy,
-            ICalculatePriceStrategy calculatePriceStrategy,
-            IFindRidesWithLookingStatusStrategy findRidesWithLookingStatusStrategy,
-            ICalculateRideDistanceStrategy calculateRideDistanceStrategy,
-            ICheckWorkloadLevelStrategy checkWorkloadLevelStrategy,
-            ICalculateLengthStrategy calculateLengthStrategy,
-            IFindNearbyDriversStrategy findNearbyDriversStrategy,
-            IChronometer chronometer)
+        public VuberController(VuberControllerOptions options)
         {
-            _clientHubContext = clientHubContext ?? throw new ArgumentNullException(nameof(clientHubContext));
-            _driverHubContext = driverHubContext ?? throw new ArgumentNullException(nameof(driverHubContext));
-            _vuberDbContext = vuberDbContext;
-            WorkloadLevel = WorkloadLevel.Normal;
-            _logger = logger;
-            _calculateNewRatingStrategy = calculateNewRatingStrategy;
-            _calculatePriceStrategy = calculatePriceStrategy;
-            _findRidesWithLookingStatusStrategy = findRidesWithLookingStatusStrategy;
-            _checkWorkloadLevelStrategy = checkWorkloadLevelStrategy;
-            _calculateLengthStrategy = calculateLengthStrategy;
-            _calculateRideDistanceStrategy = calculateRideDistanceStrategy;
-            _findNearbyDriversStrategy = findNearbyDriversStrategy;
-            _chronometer = chronometer;
+            if (!options.Validate())
+            {
+                throw new VuberException("fuck");
+            }
+            _clientHubContext = options.ClientHubContext;
+            _driverHubContext = options.DriverHubContext;
+            _vuberDbContext = options.DbContext;
+            _workloadLevel = options.WorkloadLevel;
+            _logger = options.Logger;
+            _calculateNewRatingStrategy = options.CalculateNewRatingStrategy;
+            _calculatePriceStrategy = options.CalculatePriceStrategy;
+            _findRidesWithLookingStatusStrategy = options.FindRidesWithLookingStatusStrategy;
+            _checkWorkloadLevelStrategy = options.CheckWorkloadLevelStrategy;
+            _calculateLengthStrategy = options.CalculateLengthStrategy;
+            _calculateRideDistanceStrategy = options.CalculateRideDistanceStrategy;
+            _findNearbyDriversStrategy = options.FindNearbyDriversStrategy;
+            _chronometer = options.Chronometer;
         }
 
         public Ride CreateNewRide(
@@ -83,7 +77,7 @@ namespace VuberServer.Controllers
             _vuberDbContext.Rides.Add(ride);
             _vuberDbContext.SaveChanges();
             var drivers = NearbyDrivers(path.StartPoint, rideType);
-            _driverHubContext.Clients.Clients(drivers.Select(driver => driver.Username))
+            _driverHubContext.Clients.Users(drivers.Select(driver => driver.Username))
                 .RideRequested(new RideToDriver(ride)).Start();
             _logger.LogInformation("Ride {0} created", ride.Id);
             return ride;
@@ -182,7 +176,7 @@ namespace VuberServer.Controllers
         {
             var rideLength = CalculateRideLength(path);
             CheckWorkloadLevel();
-            return _calculatePriceStrategy.CalculatePrice(rideLength, rideType, WorkloadLevel);
+            return _calculatePriceStrategy.CalculatePrice(rideLength, rideType, _workloadLevel);
         }
 
         public IReadOnlyList<Ride> SeeRides(string userUsername)
@@ -235,7 +229,7 @@ namespace VuberServer.Controllers
 
         private void CheckWorkloadLevel()
         {
-            WorkloadLevel = _checkWorkloadLevelStrategy.CheckWorkloadLevel(
+            _workloadLevel = _checkWorkloadLevelStrategy.CheckWorkloadLevel(
                 _vuberDbContext
                 .Rides
                 .Where(ride => ride.Status == RideStatus.Looking).ToList().Count);

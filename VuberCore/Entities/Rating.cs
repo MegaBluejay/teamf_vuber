@@ -2,9 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace VuberCore.Entities
 {
-    public class Rating
+    public class Rating : Entity
     {
-        public int Id { get; init; }
         [Required]
         public virtual Mark Value { get; set; } = new Mark(5);
 

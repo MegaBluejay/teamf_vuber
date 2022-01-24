@@ -1,16 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using VuberCore.Hubs;
@@ -42,7 +34,7 @@ namespace VuberDriverClient
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "VuberDriverClient", Version = "v1" });
             });
             var hubConnection = new HubConnectionBuilder()
-                .WithUrl("localhost/driver")
+                .WithUrl("http://localhost:5003/driver")
                 .WithAutomaticReconnect()
                 .Build();
             var driverNotificationController = new DriverNotificationController();

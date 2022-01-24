@@ -2,9 +2,8 @@
 
 namespace VuberCore.Entities
 {
-    public class Mark
+    public class Mark : Entity
     {
-        public int Id { get; init; }
         public Mark(double value)
         {
             if (value is > 5.0 or < 0.0)

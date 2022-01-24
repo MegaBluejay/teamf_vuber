@@ -2,7 +2,7 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using VuberCore.Entities;
 using VuberCore.Dto;
-using VuberDriverClient.Hubs;
+using VuberCore.Hubs;
 using NetTopologySuite.Geometries;
 
 namespace VuberDriverClient.Controllers
@@ -11,18 +11,18 @@ namespace VuberDriverClient.Controllers
     [Route("/driver")]
     public class DriverController : ControllerBase
     {
-        private DriverHubWrapper _hubWrapper;
+        private readonly IDriverHub _hub;
 
-        public DriverController(DriverHubWrapper hubWrapper)
+        public DriverController(IDriverHub hub)
         {
-            _hubWrapper = hubWrapper;
+            _hub = hub;
         }
 
         [HttpPost]
         [Route("register")]
-        public IActionResult Register(NewDriver newDriver)
+        public IActionResult Register([FromBody] NewDriver newDriver)
         {
-            _hubWrapper.Register(newDriver);
+            _hub.Register(newDriver);
             return Ok();
         }
 
@@ -30,45 +30,38 @@ namespace VuberDriverClient.Controllers
         [Route("see-rides")]
         public IActionResult SeeRides()
         {
-            return Ok(_hubWrapper.SeeRides());
+            return Ok(_hub.SeeRides());
         }
 
         [HttpPost]
         [Route("set-rating")]
-        public IActionResult SetRating([FromQuery] Mark mark, [FromQuery] Guid rideId)
+        public IActionResult SetRating([FromBody] Mark mark, [FromQuery] Guid rideId)
         {
-            _hubWrapper.SetRating(mark, rideId);
+            _hub.SetRating(mark, rideId);
             return Ok();
-        }
-
-        [HttpGet]
-        [Route("see-order-details")]
-        public IActionResult SeeOrderDetails(Guid rideId)
-        {
-            return Ok(_hubWrapper.SeeOrderDetails(rideId));
         }
 
         [HttpPost]
         [Route("accept-order")]
-        public IActionResult AcceptOrder(Guid rideId)
+        public IActionResult AcceptOrder([FromQuery] Guid rideId)
         {
-            _hubWrapper.AcceptOrder(rideId);
+            _hub.AcceptOrder(rideId);
             return Ok();
         }
 
         [HttpPost]
         [Route("reject-order")]
-        public IActionResult RejectOrder(Guid rideId)
+        public IActionResult RejectOrder([FromQuery] Guid rideId)
         {
-            _hubWrapper.RejectOrder(rideId);
+            _hub.RejectOrder(rideId);
             return Ok();
         }
 
         [HttpPost]
         [Route("send-current-location")]
-        public IActionResult SendCurrentLocation(Point point)
+        public IActionResult SendCurrentLocation([FromBody] Point point)
         {
-            _hubWrapper.SendCurrentLocation(point);
+            _hub.SendCurrentLocation(point);
             return Ok();
         }
     }

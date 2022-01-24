@@ -2,9 +2,8 @@
 
 namespace VuberCore.Entities
 {
-    public class PaymentCard
+    public class PaymentCard : Entity
     {
-        public int Id { get; init; }
         [Required]
         public string CardData { get; init; }
         [Required]
