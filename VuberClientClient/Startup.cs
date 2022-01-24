@@ -34,16 +34,16 @@ namespace VuberClientClient
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "VuberClientClient", Version = "v1" });
             });
-            /*var creds = Convert.ToBase64String(System.Text.Encoding.GetEncoding("ISO-8859-1")
+            var creds = Convert.ToBase64String(System.Text.Encoding.GetEncoding("ISO-8859-1")
                 .GetBytes("SomeUserName" + ":" + "__NOPASS__"));
             var hubConnection = new HubConnectionBuilder()
-                .WithUrl("http://localhost:5005/client", options => options.Headers["Authorization"] = $"Basic {creds}")
+                .WithUrl("http://localhost:5000/client", options => options.Headers["Authorization"] = $"Basic {creds}")
                 .WithAutomaticReconnect()
                 .Build();
             hubConnection.StartAsync().Wait();
             var clientNotificationController = new ClientNotificationController();
             services.AddSingleton<IClientHub, ClientHubWrapper>(_ =>
-                new ClientHubWrapper(hubConnection, clientNotificationController));*/
+                new ClientHubWrapper(hubConnection, clientNotificationController));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
