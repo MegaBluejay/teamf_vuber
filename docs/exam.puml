@@ -1,21 +1,31 @@
 @startuml
 
 package Models {
-        class Location
+        class CheckPoint{
+                Point Coordinate
+                bool IsPassed
+                Pass()
+        }
 
         abstract class User {
                 string Username
-                int Score
+        }
+        abstract class Entity {
+                Guid Id
         }
         class Client {
                 PaymentCard PaymentCard
-                List<Ride> Rides
         }
         class Driver {
-                Location CurrentLocation
+                RideType MaxRideLevel
+                RideType MinRideLevel
+                Point LastKnownLocation
+                UpdateLocation(Point newLocation, DateTime updateTime)
+                bool CheckRideLevels(RideType minRideLevel, RideType maxRideLevel)
         }
         class PaymentCard {
             string CardData
+            decimal Money
         }
         
         enum PaymentType{
@@ -45,18 +55,36 @@ package Models {
                 int ClientScore
                 int DriverScore
         }
-
+        interface IChronometer{
+                DateTime TimeNow()
+        }
+        class Rating {
+                Mark Value
+                uint RidesNumber
+        }                
+        
+        class Mark {
+                double Value
+        }
+        
         Client --|> User
         Driver --|> User
+        
+        RealTimeChronometer --|> IChronometer
+        
+        Client --|> Entity
+        Driver --|> Entity
+        PaymentCard --|> Entity
+        Ride --|> Entity
+        User --|> Entity
 
-        Driver o-- Location
 
         Ride o-- Client
         Ride o-- Driver
-        Ride o-- Location
         Ride *-- RideStatus
         Ride *-- RideType
         Ride *-- PaymentType
+        Rating *-- Mark
         Client *-- PaymentCard
 }
 
@@ -75,19 +103,49 @@ package Server {
         VuberController --> IHubContext
 
         abstract class VuberHub{
-                SeeRides()
-                SetRating(Rating rating, Guid rideId)
+                GetCurrentUsername()
+                SetRating(Mark mark, Guid rideId)
         }
         class ClientHub{
-                OrderRide(Location startLocation, Location targetLocation, RideType rideType)
+                OrderRide(RideOrder rideOrder)
                 AddPaymentCard(string CardData)
+                IEnumerable<RideToClient> SeeRides()
+                CancelOrder()
+                Rating GetDriverRating(Guid driverGuid)
         }
         class DriverHub{
                 AcceptOrder()
                 RejectOrder()
                 NotifyClientAboutArrival()
-                SendCurrentLocation(Location currentLocation)
+                SendCurrentLocation(Point currentLocation)
         }
+        
+        class IClientClient{
+                Task UpdateRide(RideToClient rideToClient)
+                Task UpdateDriverLocation(Point coordinate)
+        }
+        
+        class IDriverClient{
+                Task RideRequested(RideToDriver ride)
+                Task RideCancelled()
+                Task TakeCashPayment()
+        }
+        
+        class IVuberController{
+                Ride CreateNewRide(string clientUsername, LineString path, PaymentType paymentType, RideType rideType)
+                bool DriverTakesRide(string driverUsername, Guid rideId)
+                void RegisterClient(NewClient newClient)
+                void RegisterDriver(NewDriver newDriver)
+                void DriverArrives(Guid rideId)
+                void PassCheckpoint(Guid rideId, int checkpointNumber)
+                void RideCompleted(Guid rideId)
+                void CancelRide(Guid rideId)
+                IReadOnlyList<Ride> SeeRides(string userUsername)
+                void SetRating(Mark rating, Guid rideId, Func<Ride, User> userGetter)
+                void AddPaymentCard(string clientUsername, string cardData)
+                void UpdateDriverLocation(string driverUsername, Point location)
+        }
+                
         ClientHub --|> VuberHub
         DriverHub --|> VuberHub
         ClientHub --> IVuberController
