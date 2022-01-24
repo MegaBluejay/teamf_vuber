@@ -4,6 +4,7 @@ using VuberCore.Entities;
 using VuberCore.Dto;
 using VuberCore.Hubs;
 using NetTopologySuite.Geometries;
+using VuberCore.Hubs;
 
 namespace VuberDriverClient.Controllers
 {
@@ -11,18 +12,18 @@ namespace VuberDriverClient.Controllers
     [Route("/driver")]
     public class DriverController : ControllerBase
     {
-        private IDriverHub _hubWrapper;
+        private IDriverHub _hub;
 
-        public DriverController(IDriverHub hubWrapper)
+        public DriverController(IDriverHub hub)
         {
-            _hubWrapper = hubWrapper;
+            _hub = hub;
         }
 
         [HttpPost]
         [Route("register")]
         public IActionResult Register([FromQuery] NewDriver newDriver)
         {
-            _hubWrapper.Register(newDriver);
+            _hub.Register(newDriver);
             return Ok();
         }
 
@@ -30,14 +31,14 @@ namespace VuberDriverClient.Controllers
         [Route("see-rides")]
         public IActionResult SeeRides()
         {
-            return Ok(_hubWrapper.SeeRides());
+            return Ok(_hub.SeeRides());
         }
 
         [HttpPost]
         [Route("set-rating")]
         public IActionResult SetRating([FromQuery] Mark mark, [FromQuery] Guid rideId)
         {
-            _hubWrapper.SetRating(mark, rideId);
+            _hub.SetRating(mark, rideId);
             return Ok();
         }
 
@@ -45,7 +46,7 @@ namespace VuberDriverClient.Controllers
         [Route("accept-order")]
         public IActionResult AcceptOrder([FromQuery] Guid rideId)
         {
-            _hubWrapper.AcceptOrder(rideId);
+            _hub.AcceptOrder(rideId);
             return Ok();
         }
 
@@ -53,7 +54,7 @@ namespace VuberDriverClient.Controllers
         [Route("reject-order")]
         public IActionResult RejectOrder([FromQuery] Guid rideId)
         {
-            _hubWrapper.RejectOrder(rideId);
+            _hub.RejectOrder(rideId);
             return Ok();
         }
 
@@ -61,7 +62,7 @@ namespace VuberDriverClient.Controllers
         [Route("send-current-location")]
         public IActionResult SendCurrentLocation([FromQuery] Point point)
         {
-            _hubWrapper.SendCurrentLocation(point);
+            _hub.SendCurrentLocation(point);
             return Ok();
         }
     }

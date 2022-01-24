@@ -22,6 +22,8 @@ namespace VuberCore.Entities
             Created = chronometer.TimeNow();
         }
 
+        protected Ride() { }
+
         [Required]
         public virtual Client Client { get; private set; }
         public virtual Driver Driver { get; private set; }

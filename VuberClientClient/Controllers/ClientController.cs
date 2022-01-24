@@ -10,17 +10,17 @@ namespace VuberClientClient.Controllers
     [Route("/client")]
     public class ClientController : ControllerBase
     {
-        private IClientHub _hubWrapper;
-        public ClientController(IClientHub hubWrapper)
+        private IClientHub _hub;
+        public ClientController(IClientHub hub)
         {
-            _hubWrapper = hubWrapper;
+            _hub = hub;
         }
 
         [HttpPost]
         [Route("register")]
         public IActionResult Register([FromQuery] NewClient newClient)
         {
-            _hubWrapper.Register(newClient);
+            _hub.Register(newClient);
             return Ok();
         }
 
@@ -28,7 +28,7 @@ namespace VuberClientClient.Controllers
         [Route("create-order")]
         public IActionResult OrderRide([FromQuery] RideOrder rideOrder)
         {
-            _hubWrapper.OrderRide(rideOrder);
+            _hub.OrderRide(rideOrder);
             return Ok();
         }
 
@@ -36,7 +36,7 @@ namespace VuberClientClient.Controllers
         [Route("cancel-order")]
         public IActionResult CancelOrder()
         {
-            _hubWrapper.CancelOrder();
+            _hub.CancelOrder();
             return Ok();
         }
 
@@ -44,7 +44,7 @@ namespace VuberClientClient.Controllers
         [Route("add-payment-card")]
         public IActionResult AddPaymentCard([FromQuery] string cardData)
         {
-            _hubWrapper.AddPaymentCard(cardData);
+            _hub.AddPaymentCard(cardData);
             return Ok();
         }
 
@@ -52,14 +52,14 @@ namespace VuberClientClient.Controllers
         [Route("see-rides")]
         public IActionResult SeeRides()
         {
-            return Ok(_hubWrapper.SeeRides());
+            return Ok(_hub.SeeRides());
         }
 
         [HttpGet]
         [Route("set-rating")]
         public IActionResult SetRating([FromQuery] Mark mark, [FromQuery] Guid driverId)
         {
-            _hubWrapper.SetRating(mark, driverId);
+            _hub.SetRating(mark, driverId);
             return Ok();
         }
 
@@ -67,7 +67,7 @@ namespace VuberClientClient.Controllers
         [Route("get-driver-rating")]
         public IActionResult GetDriverRating([FromQuery] Guid driverId)
         {
-            return Ok(_hubWrapper.GetDriverRating(driverId));
+            return Ok(_hub.GetDriverRating(driverId));
         }
     }
 }

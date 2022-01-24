@@ -2,7 +2,7 @@ using NetTopologySuite.Geometries;
 
 namespace VuberCore.Entities
 {
-    public class Checkpoint
+    public class Checkpoint : Entity
     {
         public Checkpoint(Point coordinate)
         {
@@ -11,7 +11,6 @@ namespace VuberCore.Entities
 
         protected Checkpoint() { }
 
-        public int Id { get; set; }
         public Point Coordinate { get; set; }
         public bool IsPassed { get; set; }
 
