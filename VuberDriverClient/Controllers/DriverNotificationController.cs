@@ -5,7 +5,7 @@ namespace VuberDriverClient.Controllers
 {
     public class DriverNotificationController : IDriverNotificationController
     {
-        private List<RideToDriver> _ridesRequested = new List<RideToDriver>();
+        private readonly List<RideToDriver> _ridesRequested = new List<RideToDriver>();
         private bool _rideCancelled = false;
         private bool _takeCashPayment = false;
 

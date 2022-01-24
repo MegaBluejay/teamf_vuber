@@ -1,18 +1,22 @@
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging.Abstractions;
+using VuberCore.Entities;
+using VuberServer.Clients;
+using VuberServer.Controllers;
 using VuberServer.Data;
 using VuberServer.Hubs;
+using VuberServer.Strategies.CalculateNewRatingStrategies;
+using VuberServer.Strategies.CalculatePriceStrategies;
+using VuberServer.Strategies.CalculateRideDistanceStrategies;
+using VuberServer.Strategies.CheckWorkloadLevelStrategies;
+using VuberServer.Strategies.FindNearbyDriversStrategies;
+using VuberServer.Strategies.FindRidesWithLookingStatusStrategies;
+using VuberServer.Tools;
 
 namespace VuberServer
 {
@@ -38,6 +42,25 @@ namespace VuberServer
             services.AddSingleton<IUserIdProvider, VuberUserIdProvider>();
             services.AddAuthentication()
                 .AddBasicAuthentication<VuberCredentialVerifier>();
+            services.AddSingleton<IVuberController, VuberController>(provider =>
+                new VuberController(new VuberControllerOptionsBuilder()
+                    .UseClientHubContext(provider.GetService<IHubContext<ClientHub, IClientClient>>())
+                    .UseDriverHubContext(provider.GetService<IHubContext<DriverHub, IDriverClient>>())
+                    .UseDbContext(new VuberDbContext(new DbContextOptionsBuilder<VuberDbContext>()
+                        .UseLazyLoadingProxies()
+                        .UseNpgsql(connectionString, npgsqlOptions => npgsqlOptions.UseNetTopologySuite())
+                        .Options))
+                    .UseLogger(new NullLogger<VuberController>())
+                    .CalculateNewRatingStrategy(new ArithmeticalMeanCalculateNewRatingStrategy())
+                    .CalculatePriceStrategy(new DefaultCalculatePriceStrategy(1,1,1,1))
+                    .CheckWorkloadLevelStrategy(new DefaultCheckWorkloadLevelStrategy(10))
+                    .FindRidesWithLookingStatusStrategy(new DefaultFindRidesWithLookingStatusStrategy())
+                    .CalculateRideDistanceStrategy(new LinearRideDistanceStrategy())
+                    .CalculateLengthStrategy(new LinearLengthStrategy())
+                    .FindNearbyDriversStrategy(new FindNearbyDriversWithMinimalDistanceStrategy(100))
+                    .Chronometer(new RealTimeChronometer())
+                    .Options
+                ));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

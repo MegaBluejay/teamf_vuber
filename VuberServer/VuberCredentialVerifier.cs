@@ -7,7 +7,7 @@ namespace VuberServer
 {
     public class VuberCredentialVerifier : IBasicCredentialVerifier
     {
-        private VuberDbContext _db;
+        private readonly VuberDbContext _db;
 
         public VuberCredentialVerifier(VuberDbContext db)
         {
