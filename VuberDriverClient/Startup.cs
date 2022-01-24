@@ -42,7 +42,7 @@ namespace VuberDriverClient
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "VuberDriverClient", Version = "v1" });
             });
             var hubConnection = new HubConnectionBuilder()
-                .WithUrl("localhost/driver")
+                .WithUrl("http://localhost:5003/driver")
                 .WithAutomaticReconnect()
                 .Build();
             var driverNotificationController = new DriverNotificationController();
