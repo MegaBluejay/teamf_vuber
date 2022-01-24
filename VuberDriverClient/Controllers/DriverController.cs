@@ -2,7 +2,7 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using VuberCore.Entities;
 using VuberCore.Dto;
-using VuberDriverClient.Hubs;
+using VuberCore.Hubs;
 using NetTopologySuite.Geometries;
 
 namespace VuberDriverClient.Controllers
@@ -11,16 +11,16 @@ namespace VuberDriverClient.Controllers
     [Route("/driver")]
     public class DriverController : ControllerBase
     {
-        private DriverHubWrapper _hubWrapper;
+        private IDriverHub _hubWrapper;
 
-        public DriverController(DriverHubWrapper hubWrapper)
+        public DriverController(IDriverHub hubWrapper)
         {
             _hubWrapper = hubWrapper;
         }
 
         [HttpPost]
         [Route("register")]
-        public IActionResult Register(NewDriver newDriver)
+        public IActionResult Register([FromQuery] NewDriver newDriver)
         {
             _hubWrapper.Register(newDriver);
             return Ok();
@@ -41,16 +41,9 @@ namespace VuberDriverClient.Controllers
             return Ok();
         }
 
-        [HttpGet]
-        [Route("see-order-details")]
-        public IActionResult SeeOrderDetails(Guid rideId)
-        {
-            return Ok(_hubWrapper.SeeOrderDetails(rideId));
-        }
-
         [HttpPost]
         [Route("accept-order")]
-        public IActionResult AcceptOrder(Guid rideId)
+        public IActionResult AcceptOrder([FromQuery] Guid rideId)
         {
             _hubWrapper.AcceptOrder(rideId);
             return Ok();
@@ -58,7 +51,7 @@ namespace VuberDriverClient.Controllers
 
         [HttpPost]
         [Route("reject-order")]
-        public IActionResult RejectOrder(Guid rideId)
+        public IActionResult RejectOrder([FromQuery] Guid rideId)
         {
             _hubWrapper.RejectOrder(rideId);
             return Ok();
@@ -66,7 +59,7 @@ namespace VuberDriverClient.Controllers
 
         [HttpPost]
         [Route("send-current-location")]
-        public IActionResult SendCurrentLocation(Point point)
+        public IActionResult SendCurrentLocation([FromQuery] Point point)
         {
             _hubWrapper.SendCurrentLocation(point);
             return Ok();

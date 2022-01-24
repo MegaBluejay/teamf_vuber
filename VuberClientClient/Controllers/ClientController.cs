@@ -2,7 +2,7 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using VuberCore.Entities;
 using VuberCore.Dto;
-using VuberClientClient.Hubs;
+using VuberCore.Hubs;
 
 namespace VuberClientClient.Controllers
 {
@@ -10,15 +10,15 @@ namespace VuberClientClient.Controllers
     [Route("/client")]
     public class ClientController : ControllerBase
     {
-        private ClientHubWrapper _hubWrapper;
-        public ClientController(ClientHubWrapper hubWrapper)
+        private IClientHub _hubWrapper;
+        public ClientController(IClientHub hubWrapper)
         {
             _hubWrapper = hubWrapper;
         }
 
         [HttpPost]
         [Route("register")]
-        public IActionResult Register(NewClient newClient)
+        public IActionResult Register([FromQuery] NewClient newClient)
         {
             _hubWrapper.Register(newClient);
             return Ok();
